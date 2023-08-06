@@ -1,0 +1,41 @@
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+stages:
+- test
+sast:
+  stage: test
+include:
+- template: Security/SAST.gitlab-ci.yml
+
+test python:
+  image: python:latest
+
+  before_script:
+    - python3 -V # print version of python3
+    - cd server
+    - pip install --upgrade pip wheel setuptools "poetry==1.5.0"
+    - poetry config virtualenvs.create false
+    - poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
+
+  stage: test
+  script:
+    - cd server
+    - python -m pytest --junitxml=build/pytest.xml --cov=.
+    - black . --check
+    - flake8 --ignore=E501, W503, E722, E203 --max-line-length=100 --select=src/
+    - ls -la
+  artifacts:
+    reports:
+      junit:
+       - server/build/pytest.xml
+
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+      - /root/.cache/pypoetry/
