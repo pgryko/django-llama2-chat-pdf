@@ -15,7 +15,7 @@ com/pgryko/django-llama2-reactjs-chat-pdf).
 ```shell
 poetry install
 poetry shell
-uvicorn main:app --reload
+python -m uvicorn server.asgi:application --reload
 ```
 
 ```bash
@@ -44,6 +44,13 @@ It's possible to install gitlab runner on your local machine and test the .gitla
 $ gitlab-runner exec docker test\ python
 ```
 
+## Deployment
+
+For running in production
+
+```shell
+python -m gunicorn server.asgi:application -k uvicorn.workers.UvicornWorker
+```
 
 
 

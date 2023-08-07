@@ -18,6 +18,14 @@ pypdf = "^3.14.0"
 tiktoken = "^0.4.0"
 django = "^4.2.4"
 django-ninja = "^0.22.2"
+gunicorn = "^21.2.0"
+whitenoise = "^6.5.0"
+django-pytest = "^0.2.0"
+python-decouple = "^3.8"
+django-extensions = "^3.2.3"
+daphne = "^4.0.0"
+httpx = "^0.24.1"
+structlog = "^23.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
