@@ -46,45 +46,46 @@ async def chroma_delete(request, collection: uuid.UUID) -> None:
     collection = client.get_or_create_collection(name=collection)
     return collection.delete()
 
+    # client = httpx.AsyncClient()
+    #
+    # async def get_stream():
+    #     async with httpx.AsyncClient(follow_redirects=True) as client:
+    #         r = await client.post(
+    #             url="https://api.replicate.com/v1/predictions",
+    #             json={
+    #                 "version": "2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
+    #                 "stream": True,
+    #                 "input": {"prompt": "Tell me a recipe"},
+    #             },
+    #             headers={"Authorization": f"Token {settings.REPLICATE_API_TOKEN}"},
+    #         )
+    #         data = r.json()
+    #         logger.debug("get_stream", data=data)
+    #         return data["urls"]["stream"]
+    #
+    # async def stream(url):
+    #     async with client.stream(
+    #         "GET",
+    #         url=url,
+    #         headers={"Authorization": f"Token {settings.REPLICATE_API_TOKEN}"},
+    #     ) as r:
+    #         async for chunk in r.aiter_bytes():
+    #             print("chunk", chunk)
+    #             yield chunk
+    #
+    # stream_url = await get_stream()
+    # print("stream_url", stream_url)
+    # # response = StreamingHttpResponse(
+    # #     streaming_content=stream(stream_url),
+    # #     content_type="text/event-stream",
+    # # )
+
 
 # for Nginx proxy_buffering off;
 @api.get("/stream_chat/{chat_input}")
 async def stream_chat(request, chat_input: str) -> StreamingHttpResponse:
-    client = httpx.AsyncClient()
-
-    async def get_stream():
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            r = await client.post(
-                url="https://api.replicate.com/v1/predictions",
-                json={
-                    "version": "2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
-                    "stream": True,
-                    "input": {"prompt": "Tell me a recipe"},
-                },
-                headers={"Authorization": f"Token {settings.REPLICATE_API_TOKEN}"},
-            )
-            data = r.json()
-            logger.debug("get_stream", data=data)
-            return data["urls"]["stream"]
-
-    async def stream(url):
-        async with client.stream(
-            "GET",
-            url=url,
-            headers={"Authorization": f"Token {settings.REPLICATE_API_TOKEN}"},
-        ) as r:
-            async for chunk in r.aiter_bytes():
-                print("chunk", chunk)
-                yield chunk
-
-    stream_url = await get_stream()
-    print("stream_url", stream_url)
-    # response = StreamingHttpResponse(
-    #     streaming_content=stream(stream_url),
-    #     content_type="text/event-stream",
-    # )
     response = StreamingHttpResponse(
-        streaming_content=services.stream_chat(chat_input),
+        streaming_content=services.get_replicate_stream(chat_input),
         content_type="text/event-stream",
     )
     response["Cache-Control"] = "no-cache"

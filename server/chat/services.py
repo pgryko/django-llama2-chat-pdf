@@ -1,5 +1,7 @@
+import asyncio
 import hashlib
-from typing import AsyncIterable, BinaryIO, Union
+from typing import AsyncIterable, BinaryIO, Union, Iterator
+
 from pypdf import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 import io
@@ -26,18 +28,19 @@ async def create_input(messages: list[Message]) -> str:
     return input_string
 
 
-async def stream_chat(user_input: str) -> AsyncIterable[str | bytes]:
+async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
     try:
         # The replicate/llama-2-70b-chat model can stream output as it's running.
         # The predict method returns an iterator, and you can iterate over that output.
-        output = replicate.run(
+        output: Iterator = replicate.run(
             "replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
             input={
                 "prompt": f"{SYSTEM_PROMPT}\n\nHuman: {user_input}\nSystem:",
             },
         )
         for item in output:
-            print(item)
+            # Dumb as hell - streaming only works if you introduce a tiny delay
+            await asyncio.sleep(0.000001)  # Introducing a delay
             yield item
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
