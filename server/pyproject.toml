@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fastapi-llama2-reactjs-chat-pdf"
+name = "django-llama2-reactjs-chat-pdf"
 version = "0.1.0"
 description = ""
 authors = ["Piotr Gryko <piotr.gryko@gmail.com>"]
