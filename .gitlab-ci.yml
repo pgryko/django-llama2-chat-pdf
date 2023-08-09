@@ -24,7 +24,8 @@ test python:
 
   stage: test
   script:
-    - cd server
+    - ls -la
+    - pwd
     - python -m pytest --junitxml=build/pytest.xml --cov=.
     - black . --check
     - flake8 --ignore=E501, W503, E722, E203 --max-line-length=100 --select=src/
