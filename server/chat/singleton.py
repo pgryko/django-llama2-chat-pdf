@@ -1,7 +1,6 @@
 from django.conf import settings
 from chromadb.utils import embedding_functions
 import chromadb
-from chromadb.api.models.Collection import Collection
 
 
 class ChromaDBSingleton:

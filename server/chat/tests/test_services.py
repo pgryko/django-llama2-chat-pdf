@@ -1,7 +1,7 @@
 import io
 
 import pytest
-from ..services import get_pdf_text, compute_md5, get_text_chunks
+from ..services import get_pdf_text, compute_md5, get_text_chunks, get_replicate_stream
 
 
 def test_get_pdf_text_valid():
@@ -95,3 +95,18 @@ def test_get_text_chunks_special_characters():
 #     assert all(
 #         len(chunk) <= 1200 for chunk in result
 #     )  # No chunk should be larger than chunk_size + chunk_overlap
+
+
+@pytest.mark.asyncio
+async def test_get_replicate_stream_normal(mock_replicate_run):
+    results = [res async for res in get_replicate_stream("test input")]
+
+    assert results == ["item1", "item2"]
+
+
+@pytest.mark.asyncio
+async def test_get_replicate_stream_error(mock_replicate_run_exception):
+    with pytest.raises(Exception) as exc_info:
+        _ = [res async for res in get_replicate_stream("test input")]
+
+    assert exc_info.value.status_code == 500

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Mapping, Union, Optional, TypedDict
-from chromadb.api.types import GetResult, ID, Embedding, Document
+from chromadb.api.types import ID, Embedding, Document
 
 Metadata_None = Mapping[str, Union[str, int, float, bool, None]]
 

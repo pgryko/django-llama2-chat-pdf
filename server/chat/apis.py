@@ -1,7 +1,6 @@
 import uuid
 
 from chromadb.api import Documents
-from django.conf import settings
 from django.http import StreamingHttpResponse
 
 from ninja import NinjaAPI, File, UploadedFile
@@ -11,7 +10,6 @@ from structlog import get_logger
 
 from .schemas import GetResultMetaNone
 from .singleton import ChromaDBSingleton
-import httpx
 
 api = NinjaAPI(
     title="Chat API",
