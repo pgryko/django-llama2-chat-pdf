@@ -26,6 +26,7 @@ django-extensions = "^3.2.3"
 daphne = "^4.0.0"
 httpx = "^0.24.1"
 structlog = "^23.1.0"
+pytest-asyncio = "^0.21.1"
 
 
 [tool.poetry.group.dev.dependencies]
