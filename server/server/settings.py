@@ -21,9 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config(
-    "SECRET_KEY", "django-insecure-677r0v$n7m-2o2sezi=#ova1ad3eyf^pciz=*8_yh4hb2jt3x&"
-)
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", False, cast=bool)
@@ -40,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts.apps.AccountsConfig",
     "chat.apps.ChatConfig",
 ]
 
@@ -137,4 +136,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CHROMADB_PATH = config("CHROMADB_PATH", ".chromadb")
 
+AUTH_USER_MODEL = "accounts.AccountUser"
+
 REPLICATE_API_TOKEN = config("REPLICATE_API_TOKEN", "")
+
+if DEBUG:
+    # Add django extensions
+    # Provides additional dev tools such as runserver_plus
+    INSTALLED_APPS.append("django_extensions")
