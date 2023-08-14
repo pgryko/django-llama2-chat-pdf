@@ -21,5 +21,5 @@ def mock_replicate_run():
         yield "item2"
 
     # Patch the replicate.run function to use our mock_run
-    with patch("replicate.run", mock_run):  # Adjust the path as needed
+    with patch("replicate.run", mock_run):
         yield  # This yields control to the test function, keeping the patch in effect

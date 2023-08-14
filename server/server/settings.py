@@ -138,3 +138,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 CHROMADB_PATH = config("CHROMADB_PATH", ".chromadb")
 
 REPLICATE_API_TOKEN = config("REPLICATE_API_TOKEN", "")
+
+if DEBUG:
+    # Add django extensions
+    INSTALLED_APPS.append("django_extensions")

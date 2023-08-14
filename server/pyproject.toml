@@ -27,6 +27,7 @@ daphne = "^4.0.0"
 httpx = "^0.24.1"
 structlog = "^23.1.0"
 pytest-asyncio = "^0.21.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 
 
 [tool.poetry.group.dev.dependencies]
