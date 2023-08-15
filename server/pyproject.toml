@@ -25,13 +25,12 @@ django-extensions = "^3.2.3"
 daphne = "^4.0.0"
 httpx = "^0.24.1"
 structlog = "^23.1.0"
-pytest-asyncio = "^0.21.1"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 chromadb = "^0.4.5"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
+pytest = "7.2.0"
 ipython = "^8.14.0"
 ipdb = "^0.13.13"
 ruff = "^0.0.282"
@@ -40,6 +39,7 @@ isort = "^5.12.0"
 pytest-cov = "^4.1.0"
 flake8 = "^6.1.0"
 django-extensions = "^3.2.3"
+pytest-asyncio = "^0.21.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -66,8 +66,41 @@ exclude = [
     "buck-out",
     "build",
     "dist",
-    "node_modules",
+    "**/node_modules/**",
     "venv",
-    ".venv",
-    "migrations/*"
+    "**/migrations/**"
+]
+
+[tool.black]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+exclude = '''
+/(
+  | migrations
+  | snapshots
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+skip_glob = "*/{migrations,snapshots}/*.py"
+
+[tool.coverage.run]
+omit = [
+  "**/__init__.py",
+  "**/tests/**",
+  "**/tests.py",
+  "**/migrations/**",
+  "**/fixtures/**",
+  "**/admin/**",
+  "**/manage.py",
+  "**/settings/**",
+  "**/settings.py",
+  "**/asgi.py",
+  "**/wsgi.py",
 ]

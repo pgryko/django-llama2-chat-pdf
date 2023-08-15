@@ -89,9 +89,11 @@ def get_text_chunks(text: str) -> Documents:
         list: A list of text chunks.
 
     Example:
-        >>> text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, urna id aliquet lacinia, nunc nisl ultrices nunc, id lacinia nunc nisl id nisl."
+        >>> text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        "Sed euismod, urna id aliquet lacinia, nunc nisl ultrices nunc, id lacinia nunc nisl id nisl."
         >>> get_text_chunks(text)
-        ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, urna id aliquet lacinia, nunc nisl ultrices nunc,', 'id lacinia nunc nisl id nisl.']
+        ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod,
+        urna id aliquet lacinia, nunc nisl ultrices nunc,', 'id lacinia nunc nisl id nisl.']
     """
     # This doesn't actually work corretly, only splits on newlines
     text_splitter = CharacterTextSplitter(

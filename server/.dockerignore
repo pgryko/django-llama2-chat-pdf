@@ -34,6 +34,9 @@ htmlcov/
 venv/
 .venv/
 ENV/
+**/.venv/**
+**/ENV/**
+**/node_modules/**
 
 # Node modules (in case you're using any frontend tools that use Node.js)
 node_modules/

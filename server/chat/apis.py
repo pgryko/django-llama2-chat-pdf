@@ -1,11 +1,7 @@
 import uuid
-from django.contrib.auth import authenticate, login
 from chromadb.api import Documents
 from django.http import StreamingHttpResponse
-from django.contrib.auth.decorators import login_required
-from ninja.security import HttpBearer
 from ninja import NinjaAPI, File, UploadedFile
-from pydantic import BaseModel
 
 from chat import services
 
