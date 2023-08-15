@@ -136,7 +136,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 CHROMADB_PATH = config("CHROMADB_PATH", ".chromadb")
 
-AUTH_USER_MODEL = "accounts.AccountUser"
+AUTH_USER_MODEL = "accounts.models.AccountUser"
 
 REPLICATE_API_TOKEN = config("REPLICATE_API_TOKEN", "")
 

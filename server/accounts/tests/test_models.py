@@ -1,12 +1,15 @@
 import pytest
 from django.contrib.auth import get_user_model
 
+
 pytestmark = pytest.mark.django_db
 
 
 def test_create_user():
-    User = get_user_model()
-    user = User.objects.create_user(email="test@example.com", password="testpassword")
+    user_model = get_user_model()
+    user = user_model.objects.create_user(
+        email="test@example.com", password="testpassword"
+    )
     assert user.email == "test@example.com"
     assert user.check_password("testpassword")
     assert user.is_active
@@ -15,8 +18,8 @@ def test_create_user():
 
 
 def test_create_superuser():
-    User = get_user_model()
-    user = User.objects.create_superuser(
+    user_model = get_user_model()
+    user = user_model.objects.create_superuser(
         email="admin@example.com", password="adminpassword"
     )
     assert user.email == "admin@example.com"
