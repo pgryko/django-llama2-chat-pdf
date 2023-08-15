@@ -19,7 +19,6 @@ django = "^4.2.4"
 django-ninja = "^0.22.2"
 gunicorn = "^21.2.0"
 whitenoise = "^6.5.0"
-django-pytest = "^0.2.0"
 python-decouple = "^3.8"
 django-extensions = "^3.2.3"
 daphne = "^4.0.0"
@@ -40,6 +39,7 @@ pytest-cov = "^4.1.0"
 flake8 = "^6.1.0"
 django-extensions = "^3.2.3"
 pytest-asyncio = "^0.21.1"
+pytest-django = "^4.5.2"
 
 [build-system]
 requires = ["poetry-core"]
