@@ -28,6 +28,25 @@ async def create_input(messages: list[Message]) -> str:
     return input_string
 
 
+async def generate_raw_prompt(
+    message: str, chat_history: list[tuple[str, str]], system_prompt: str
+) -> str:
+    """Create the prompt for the model.
+    Modified from https://huggingface.co/spaces/huggingface-projects/llama-2-7b-chat/blob/main/model.py#L20
+
+    """
+    texts = [f"<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n"]
+    # The first user input is _not_ stripped
+    do_strip = False
+    for user_input, response in chat_history:
+        user_input = user_input.strip() if do_strip else user_input
+        do_strip = True
+        texts.append(f"{user_input} [/INST] {response.strip()} </s><s>[INST] ")
+    message = message.strip() if do_strip else message
+    texts.append(f"{message} [/INST]")
+    return "".join(texts)
+
+
 async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
     try:
         # The replicate/llama-2-70b-chat model can stream output as it's running.
@@ -37,7 +56,7 @@ async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
             "replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
             input={
                 "prompt": f"[INST] {user_input} [/INST]",
-                "system_prompt": SYSTEM_PROMPT,
+                "system_prompt": "",
             },
         )
         for item in output:
