@@ -82,6 +82,7 @@ exclude = '''
 /(
   | migrations
   | snapshots
+  | \.venv
 )/
 '''
 
