@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Mapping, Union, Optional, TypedDict
 from chromadb.api.types import ID, Embedding, Document
+from enum import Enum
 
 Metadata_None = Mapping[str, Union[str, int, float, bool, None]]
 
@@ -13,8 +14,13 @@ class GetResultMetaNone(TypedDict):
     metadatas: Optional[List[Union[Metadata_None, None]]]
 
 
+class Role(str, Enum):
+    USER = "user"
+    SYSTEM = "system"
+
+
 class Message(BaseModel):
-    role: str
+    role: Role
     content: str
 
 

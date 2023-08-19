@@ -32,10 +32,12 @@ async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
     try:
         # The replicate/llama-2-70b-chat model can stream output as it's running.
         # The predict method returns an iterator, and you can iterate over that output.
+        # Prompting guide https://replicate.com/blog/how-to-prompt-llama
         output: Iterator = replicate.run(
             "replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
             input={
-                "prompt": f"{SYSTEM_PROMPT}\n\nHuman: {user_input}\nSystem:",
+                "prompt": f"[INST] {user_input} [/INST]",
+                "system_prompt": SYSTEM_PROMPT,
             },
         )
         for item in output:
@@ -95,7 +97,7 @@ def get_text_chunks(text: str) -> Documents:
         ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod,
         urna id aliquet lacinia, nunc nisl ultrices nunc,', 'id lacinia nunc nisl id nisl.']
     """
-    # This doesn't actually work corretly, only splits on newlines
+    # This doesn't actually work correctly, only splits on newlines
     text_splitter = CharacterTextSplitter(
         separator="\n",
         chunk_size=100,

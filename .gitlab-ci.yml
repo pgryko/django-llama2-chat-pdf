@@ -24,6 +24,7 @@ test python:
 
   stage: test
   script:
+    - python manage.py collectstatic
     - python -m pytest --junitxml=build/pytest.xml --cov=.
     - black . --check
     - flake8 --ignore=E501, W503, E722, E203 --max-line-length=100 --select=src/
