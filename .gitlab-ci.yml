@@ -13,7 +13,7 @@ include:
 - template: Security/SAST.gitlab-ci.yml
 
 test python:
-  image: python:latest
+  image: python:3.10
 
   before_script:
     - python3 -V # print version of python3
