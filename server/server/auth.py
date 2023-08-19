@@ -2,11 +2,27 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from typing import Optional
 
+from django.contrib.auth import get_user_model, logout
+
 SECRET_KEY = (
     "YOUR_SECRET_KEY"  # This should be kept secret and can be moved to Django settings
 )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # You can adjust this as needed
+
+from django.contrib.auth import authenticate, login
+
+
+def login_user(request, username, password):
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return user
+    return None
+
+
+def logout_user(request):
+    logout(request)
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:

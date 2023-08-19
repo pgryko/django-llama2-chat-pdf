@@ -2,6 +2,8 @@ import uuid
 from chromadb.api import Documents
 from django.http import StreamingHttpResponse
 from ninja import NinjaAPI, File, UploadedFile
+from ninja.security import django_auth
+from django.http import HttpRequest
 
 from chat import services
 
@@ -10,18 +12,30 @@ from structlog import get_logger
 from .schemas import GetResultMetaNone
 from .singleton import ChromaDBSingleton
 
+# async auth merged to main Mar 2023 but not released yet
+# https://github.com/django/django/pull/16552/files
+# leave this placeholder code here for now
+# async def async_auth(request: HttpRequest):
+#     user = await request.auser()
+#     if user.is_authenticated:
+#         return user
+#
+#     return None
+
 
 api = NinjaAPI(
     title="Chat API",
     version="1.0.0",
     urls_namespace="chat-api",
+    csrf=True,
+    auth=django_auth,
 )
 
 logger = get_logger()
 
 
 @api.get("/chroma/heartbeat")
-async def chroma_heartbeat(request) -> int:
+async def chroma_heartbeat(request: HttpRequest) -> int:
     """From chromadb get the current time in nanoseconds since epoch.
     Used to check if the chroma service is alive."""
     client = ChromaDBSingleton().get_client()
