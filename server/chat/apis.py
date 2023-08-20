@@ -1,32 +1,16 @@
 import uuid
 
-from asgiref.sync import sync_to_async
 from chromadb.api import Documents
 from django.http import StreamingHttpResponse
 from ninja import NinjaAPI, File, UploadedFile
-from ninja.security import django_auth
 from django.http import HttpRequest
-from django.contrib import auth
 from chat import services
 
 from structlog import get_logger
 
 from .schemas import GetResultMetaNone
 from .singleton import ChromaDBSingleton
-
-
-async def async_auth(request: HttpRequest):
-    user = await sync_to_async(auth.get_user)(request)
-    # async auth merged to main Mar 2023 but not released yet
-    # https://github.com/django/django/pull/16552/files
-    # https://github.com/bigfootjon/django/blob/e846c5e7246a0ffbe5dcf07a2b6c7c2a47537eb3/django/contrib/auth/middleware.py
-    # leave this placeholder code here for now
-    # user = await request.auser()
-    if user.is_authenticated:
-        return user
-
-    return None
-
+from server.auth import async_auth
 
 api = NinjaAPI(
     title="Chat API",

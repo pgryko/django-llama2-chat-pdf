@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import secrets
 from decouple import config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -62,7 +63,10 @@ ROOT_URLCONF = "server.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "server/templates"),
+            os.path.join(BASE_DIR, "templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -144,7 +148,15 @@ AUTH_USER_MODEL = "accounts.AccountUser"
 
 REPLICATE_API_TOKEN = config("REPLICATE_API_TOKEN", "")
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 5
+
 if DEBUG:
     # Add django extensions
     # Provides additional dev tools such as runserver_plus
     INSTALLED_APPS.append("django_extensions")
+
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False

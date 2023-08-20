@@ -26,6 +26,7 @@ httpx = "^0.24.1"
 structlog = "^23.1.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 chromadb = "^0.4.6"
+channels = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -41,6 +42,7 @@ django-extensions = "^3.2.3"
 pytest-asyncio = "^0.21.1"
 pytest-django = "^4.5.2"
 werkzeug = "^2.3.7"
+pytest-xdist = "^3.3.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -61,7 +63,6 @@ exclude = [
     ".ruff_cache",
     ".svn",
     ".tox",
-    ".venv",
     "__pypackages__",
     "_build",
     "buck-out",
@@ -69,6 +70,7 @@ exclude = [
     "dist",
     "**/node_modules/**",
     "venv",
+    ".venv",
     "**/migrations/**"
 ]
 
