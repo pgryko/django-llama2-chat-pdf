@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import secrets
 from decouple import config
 import os
 
@@ -26,7 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # random default generated for testing purposes - make sure to change this in production or local dev
 # otherwise session data will be invalidated on every server restart or completely broken if running multiple
 # workers
-SECRET_KEY = config("SECRET_KEY", secrets.token_hex(32))
+SECRET_KEY = config(
+    "SECRET_KEY", "django-insecure-677r0v$n7m-2o2sezi=#ova1ad3eyf^pciz=*8_yh4hb2jt3x&"
+)
+
+# SECRET_KEY = config("SECRET_KEY", secrets.token_hex(32))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", False, cast=bool)
@@ -150,6 +153,8 @@ REPLICATE_API_TOKEN = config("REPLICATE_API_TOKEN", "")
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False
+# CSRF_COOKIE_AGE = None
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 5
 

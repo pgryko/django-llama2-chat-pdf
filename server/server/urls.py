@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from chat.apis import api as chat_api
+from chat.router import api as chat_api
 from server.apis import api as server_api
 
 

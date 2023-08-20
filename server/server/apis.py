@@ -6,12 +6,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import logout, authenticate, login
 from server.auth import async_auth
 
-api = NinjaAPI(
-    title="Auth API",
-    version="1.0.0",
-    urls_namespace="auth-api",
-    csrf=True,
-)
+api = NinjaAPI(title="Auth API", version="1.0.0", urls_namespace="auth-api", csrf=True)
 
 
 class LoginSchema(BaseModel):
