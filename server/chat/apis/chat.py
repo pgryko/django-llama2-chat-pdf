@@ -14,7 +14,7 @@ router = Router()
 
 
 # for Nginx proxy_buffering off;
-@router.post("/stream_chat/{collection}")
+@router.post("stream_chat/{collection}")
 async def stream_chat(
     request, collection: UUID4, chat_input: str
 ) -> StreamingHttpResponse:

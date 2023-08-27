@@ -21,3 +21,5 @@ api = NinjaAPI(
     csrf=True,
     auth=async_auth,
 )
+
+api.add_router("", router)

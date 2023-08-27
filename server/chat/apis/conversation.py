@@ -15,7 +15,7 @@ router = Router()
 logger = get_logger()
 
 
-@router.post("/document/{collection}")
+@router.post("document/{collection}")
 async def upload(request, collection: UUID4, file: UploadedFile = File(...)):
     content: bytes = await file.read()
     md5 = services.compute_md5(content)

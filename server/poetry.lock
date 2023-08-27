@@ -879,6 +879,21 @@ test = ["pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-cov", "pytest
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
+name = "cssbeautifier"
+version = "1.14.9"
+description = "CSS unobfuscator and beautifier."
+optional = false
+python-versions = "*"
+files = [
+    {file = "cssbeautifier-1.14.9.tar.gz", hash = "sha256:2da432472f68170eb854aff97b16a24721f5090ee36af2e31199590a89e7f71f"},
+]
+
+[package.dependencies]
+editorconfig = ">=0.12.2"
+jsbeautifier = "*"
+six = ">=1.13.0"
+
+[[package]]
 name = "daphne"
 version = "4.0.0"
 description = "Django ASGI (HTTP/WebSocket) server"
@@ -1020,6 +1035,31 @@ doc = ["markdown-include", "mkdocs", "mkdocs-material", "mkdocstrings"]
 test = ["black", "django-stubs", "flake8", "isort", "mypy (==0.931)", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django"]
 
 [[package]]
+name = "djlint"
+version = "1.32.1"
+description = "HTML Template Linter and Formatter"
+optional = false
+python-versions = ">=3.8.0,<4.0.0"
+files = [
+    {file = "djlint-1.32.1-py3-none-any.whl", hash = "sha256:8aaec6776376cfd41f3e742ed9f5e3c46dc7c6cd7646abf9e99860fb1ec9f19a"},
+    {file = "djlint-1.32.1.tar.gz", hash = "sha256:c1e2141acf1547d244af7ef8abd15fbbae2abcc7a03e2bf31f8a491de69a6c72"},
+]
+
+[package.dependencies]
+click = ">=8.0.1,<9.0.0"
+colorama = ">=0.4.4,<0.5.0"
+cssbeautifier = ">=1.14.4,<2.0.0"
+html-tag-names = ">=0.1.2,<0.2.0"
+html-void-elements = ">=0.1.0,<0.2.0"
+jsbeautifier = ">=1.14.4,<2.0.0"
+json5 = ">=0.9.11,<0.10.0"
+pathspec = ">=0.11.0,<0.12.0"
+PyYAML = ">=6.0,<7.0"
+regex = ">=2023.0.0,<2024.0.0"
+tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
+tqdm = ">=4.62.2,<5.0.0"
+
+[[package]]
 name = "ecdsa"
 version = "0.18.0"
 description = "ECDSA cryptographic signature library (pure python)"
@@ -1036,6 +1076,17 @@ six = ">=1.9.0"
 [package.extras]
 gmpy = ["gmpy"]
 gmpy2 = ["gmpy2"]
+
+[[package]]
+name = "editorconfig"
+version = "0.12.3"
+description = "EditorConfig File Locator and Interpreter for Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "EditorConfig-0.12.3-py3-none-any.whl", hash = "sha256:6b0851425aa875b08b16789ee0eeadbd4ab59666e9ebe728e526314c4a2e52c1"},
+    {file = "EditorConfig-0.12.3.tar.gz", hash = "sha256:57f8ce78afcba15c8b18d46b5170848c88d56fd38f05c2ec60dbbfcb8996e89e"},
+]
 
 [[package]]
 name = "exceptiongroup"
@@ -1356,6 +1407,28 @@ python-versions = ">=3.7"
 files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
+]
+
+[[package]]
+name = "html-tag-names"
+version = "0.1.2"
+description = "List of known HTML tag names"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "html-tag-names-0.1.2.tar.gz", hash = "sha256:04924aca48770f36b5a41c27e4d917062507be05118acb0ba869c97389084297"},
+    {file = "html_tag_names-0.1.2-py3-none-any.whl", hash = "sha256:eeb69ef21078486b615241f0393a72b41352c5219ee648e7c61f5632d26f0420"},
+]
+
+[[package]]
+name = "html-void-elements"
+version = "0.1.0"
+description = "List of HTML void tag names."
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "html-void-elements-0.1.0.tar.gz", hash = "sha256:931b88f84cd606fee0b582c28fcd00e41d7149421fb673e1e1abd2f0c4f231f0"},
+    {file = "html_void_elements-0.1.0-py3-none-any.whl", hash = "sha256:784cf39db03cdeb017320d9301009f8f3480f9d7b254d0974272e80e0cb5e0d2"},
 ]
 
 [[package]]
@@ -1682,6 +1755,20 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jsbeautifier"
+version = "1.14.9"
+description = "JavaScript unobfuscator and beautifier."
+optional = false
+python-versions = "*"
+files = [
+    {file = "jsbeautifier-1.14.9.tar.gz", hash = "sha256:c738ebc36b47bd94e4ca6dd17a9004c3cc74edad582ca1d60e0e5d5945a63cb9"},
+]
+
+[package.dependencies]
+editorconfig = ">=0.12.2"
+six = ">=1.13.0"
 
 [[package]]
 name = "json5"
@@ -4705,4 +4792,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "188a3c4c031aa9cce1d8a54cb60834a210b2c95fc1c5878bce3b2d0e145460b9"
+content-hash = "3f6e2dc27169fa65364d3162ead8363bf30241989da75b2ac1a7fdf2dfac7eec"

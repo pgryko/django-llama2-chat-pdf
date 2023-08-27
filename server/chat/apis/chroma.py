@@ -19,7 +19,7 @@ logger = get_logger()
 router = Router()
 
 
-@router.get("/chroma/heartbeat")
+@router.get("chroma/heartbeat")
 async def chroma_heartbeat(request: HttpRequest) -> int:
     """From chromadb get the current time in nanoseconds since epoch.
     Used to check if the chroma service is alive."""
@@ -28,7 +28,7 @@ async def chroma_heartbeat(request: HttpRequest) -> int:
     return client.heartbeat()
 
 
-@router.get("/chroma/list")
+@router.get("chroma/list")
 async def list_collections(request) -> Sequence[Collection]:
     """Return a list of all collections."""
     if request.auth.is_superuser:
