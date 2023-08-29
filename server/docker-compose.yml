@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15.4
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpassword}
+    env_file: .env
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    command: ./entrypoint.sh
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - QDRANT_HOST=qdrant
+    env_file: .env
+
+  qdrant:
+    image: qdrant/qdrant:v1.2.2
+    volumes:
+      - ./data/qdrant_storage:/qdrant/storage
+
+volumes:
+  postgres_data:

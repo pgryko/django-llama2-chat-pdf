@@ -27,6 +27,9 @@ RUN poetry config virtualenvs.create false && \
 # Copy the rest of the application code
 COPY . /app/
 
+RUN chmod +x wait-for-it.sh
+RUN chmod +x entrypoint.sh
+
 # Default command to start the application
 CMD python manage.py migrate && uvicorn server.asgi:application --reload --host 0.0.0.0 --port 8000
 

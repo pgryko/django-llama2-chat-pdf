@@ -27,6 +27,8 @@ structlog = "^23.1.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 chromadb = "^0.4.6"
 channels = "^4.0.0"
+dj-database-url = "^2.1.0"
+psycopg = "^3.1.10"
 
 
 [tool.poetry.group.dev.dependencies]
