@@ -29,12 +29,13 @@ class Message(TimeStampField):
     TYPE_CHOICES = (
         ("SYS", "System Message"),
         ("USER", "User Message"),
+        ("CONTEXT", "Vector DB Context"),
         ("LLM", "LLM Response"),
     )
     conversation = models.ForeignKey(
         Conversation, related_name="messages", on_delete=models.CASCADE
     )
-    message_type = models.CharField(max_length=4, choices=TYPE_CHOICES)
+    message_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     content = models.TextField()
 
     class Meta:

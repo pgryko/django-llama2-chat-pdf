@@ -26,6 +26,7 @@ test python:
   script:
     - python manage.py collectstatic
     - python -m pytest --junitxml=build/pytest.xml --cov=.
+    - python manage.py makemigrations --check
     - black . --check
     - flake8 --ignore=E501, W503, E722, E203 --max-line-length=100 --select=src/
     - ls -la
