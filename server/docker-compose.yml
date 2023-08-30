@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    command: ./entrypoint.sh
+    command: sh ./entrypoint.sh
     volumes:
       - .:/code
     ports:
