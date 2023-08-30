@@ -60,6 +60,7 @@ class MessageInline(admin.TabularInline):  # or admin.StackedInline if you prefe
         "updated_at",
     )
     fields = ("message_type", "content", "created_at", "updated_at")
+    ordering = ("updated_at",)
 
 
 class ConversationAdmin(admin.ModelAdmin):
