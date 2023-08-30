@@ -41,13 +41,6 @@ ALLOWED_HOSTS = config(
     cast=lambda v: [s.strip() for s in v.split(",")],
 )
 
-CSRF_TRUSTED_ORIGINS = config(
-    "CSRF_TRUSTED_ORIGINS",
-    "127.0.0.1,localhost",
-    cast=lambda v: [s.strip() for s in v.split(",")],
-)
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -168,6 +161,12 @@ CSRF_COOKIE_HTTPONLY = False
 # CSRF_COOKIE_AGE = None
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 5
+
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    "127.0.0.1,localhost",
+    cast=lambda v: [s.strip() for s in v.split(",")],
+)
 
 if DEBUG:
     # Add django extensions
