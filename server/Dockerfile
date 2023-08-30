@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir poetry
 
 # Set the working directory
-WORKDIR /code
+WORKDIR /app
 
 # Copy the pyproject.toml and poetry.lock files
 COPY pyproject.toml poetry.lock /code/
@@ -25,7 +25,7 @@ RUN poetry config virtualenvs.create false && \
     poetry install
 
 # Copy the rest of the application code
-COPY . /code/
+COPY . /app/
 
 RUN chmod +x wait-for-it.sh
 RUN chmod +x entrypoint.sh

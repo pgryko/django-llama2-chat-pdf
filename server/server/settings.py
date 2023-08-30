@@ -168,6 +168,8 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=lambda v: [s.strip() for s in v.split(",")],
 )
 
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
+
 if DEBUG:
     # Add django extensions
     # Provides additional dev tools such as runserver_plus
