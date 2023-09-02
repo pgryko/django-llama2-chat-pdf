@@ -23,22 +23,25 @@
                 <ul class="space-y-4">
                     {% for conversation in conversations %}
                         <li class="p-4 bg-white rounded shadow-md">
-                            <div>
-                                <p>
-                                    <strong>Conversation ID:</strong> {{ conversation.collection }}
-                                </p>
-                                <p>
-                                    <strong>Last Updated:</strong> {{ conversation.updated_at|date:"Y-m-d H:i:s" }}
-                                </p>
-                                <p>
-                                    <strong>Message Count:</strong> {{ conversation.message_count }}
-                                </p>
-                            </div>
-                            <form method="post" action="{% url 'delete_chatroom' conversation.uuid %}">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Delete</button>
-                            </form>
+                            <a href="{% url 'chat_room' conversation.uuid %}"
+                               class="flex justify-between items-center w-full">
+                                <div>
+                                    <p>
+                                        <strong>Conversation ID:</strong> {{ conversation.collection }}
+                                    </p>
+                                    <p>
+                                        <strong>Last Updated:</strong> {{ conversation.updated_at|date:"Y-m-d H:i:s" }}
+                                    </p>
+                                    <p>
+                                        <strong>Message Count:</strong> {{ conversation.message_count }}
+                                    </p>
+                                </div>
+                                <form method="post" action="{% url 'delete_chatroom' conversation.uuid %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Delete</button>
+                                </form>
+                            </a>
                         </li>
                     {% endfor %}
                 </ul>
