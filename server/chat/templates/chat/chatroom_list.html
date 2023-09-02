@@ -1,51 +1,56 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="bg-gray-200 h-screen font-sans">
+    <div class="bg-gray-200 min-h-screen font-sans">
         <div class="container mx-auto p-4">
-            <div class="container mx-auto p-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h1 class="text-3xl font-bold">Your Chatrooms</h1>
+            <div class="p-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800">Your Chatrooms</h1>
                     <form method="post">
                         {% csrf_token %}
                         <button type="submit"
-                                class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none">
                             Create New Chatroom
                         </button>
                     </form>
                 </div>
-                <div class="mb-4">
-                    <span>Sort by:</span>
+                <div class="mb-4 text-gray-700">
+                    <span class="font-medium">Sort by:</span>
                     <a href="?sort_by=updated_at"
-                       class="{% if not is_sorted_by_newest %}text-blue-600{% endif %}">Oldest</a> |
+                       class="{% if not is_sorted_by_newest %}text-blue-600 underline{% endif %}">Oldest</a>
+                    <span class="mx-2">|</span>
                     <a href="?sort_by=-updated_at"
-                       class="{% if is_sorted_by_newest %}text-blue-600{% endif %}">Newest</a>
+                       class="{% if is_sorted_by_newest %}text-blue-600 underline{% endif %}">Newest</a>
                 </div>
                 <ul class="space-y-4">
                     {% for conversation in conversations %}
                         <li class="p-4 bg-white rounded shadow-md">
                             <a href="{% url 'chat_room' conversation.uuid %}"
-                               class="flex justify-between items-center w-full">
-                                <div>
-                                    <p>
+                               class="flex justify-between items-center w-full hover:bg-gray-100 p-2 rounded">
+                                <div class="text-gray-800">
+                                    <p class="font-medium">
                                         <strong>Conversation ID:</strong> {{ conversation.collection }}
                                     </p>
-                                    <p>
+                                    <p class="text-sm">
                                         <strong>Last Updated:</strong> {{ conversation.updated_at|date:"Y-m-d H:i:s" }}
                                     </p>
-                                    <p>
+                                    <p class="text-sm">
                                         <strong>Message Count:</strong> {{ conversation.message_count }}
                                     </p>
                                 </div>
                                 <form method="post" action="{% url 'delete_chatroom' conversation.uuid %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Delete</button>
+                                            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none">
+                                        Delete
+                                    </button>
                                 </form>
                             </a>
                         </li>
                     {% endfor %}
                 </ul>
-                {% if not conversations %}<p class="text-xl text-gray-700">You have no active chatrooms.</p>{% endif %}
+                {% if not conversations %}
+                    <p class="text-xl text-gray-700 mt-6">You have no active chatrooms.</p>
+                {% endif %}
             </div>
         </div>
     </div>
