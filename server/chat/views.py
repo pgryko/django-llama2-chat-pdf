@@ -11,15 +11,15 @@ from chat.services import get_replicate_stream
 
 # Existing imports and views
 @login_required
-def chat_page(request, room_id):
-    context = {"room_id": room_id}
+def chat_page(request, room_uuid):
+    context = {"room_uuid": room_uuid}
     return render(request, "chat/chat_and_upload.html", context)
 
 
 @login_required
-def chatroom_delete(request, chatroom_id):
+def chatroom_delete(request, chatroom_uuid):
     try:
-        chatroom = Conversation.objects.get(id=chatroom_id, user=request.user)
+        chatroom = Conversation.objects.get(uuid=chatroom_uuid, user=request.user)
         chatroom.delete()
     except Conversation.DoesNotExist:
         pass  # Optionally, you can handle this case as needed.

@@ -34,7 +34,7 @@
                                     <strong>Message Count:</strong> {{ conversation.message_count }}
                                 </p>
                             </div>
-                            <form method="post" action="{% url 'delete_chatroom' conversation.id %}">
+                            <form method="post" action="{% url 'delete_chatroom' conversation.uuid %}">
                                 {% csrf_token %}
                                 <button type="submit"
                                         class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Delete</button>
