@@ -19,6 +19,8 @@ from django.urls import path, include
 from chat.router import api as chat_api
 from server.apis import api as server_api
 from chat import urls as chat_urls
+from server.views import home
+from django.contrib.auth.views import LoginView, LogoutView
 
 
 urlpatterns = [
@@ -26,4 +28,7 @@ urlpatterns = [
     path("api/chat/", chat_api.urls),
     path("api/auth/", server_api.urls),
     path("chat/", include(chat_urls)),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("", home),
 ]

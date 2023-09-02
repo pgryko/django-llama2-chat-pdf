@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="bg-gray-200 h-screen font-sans">
+        <div class="container mx-auto p-4">
+            <div class="container mx-auto p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h1 class="text-3xl font-bold">Your Chatrooms</h1>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                            Create New Chatroom
+                        </button>
+                    </form>
+                </div>
+                <div class="mb-4">
+                    <span>Sort by:</span>
+                    <a href="?sort_by=updated_at"
+                       class="{% if not is_sorted_by_newest %}text-blue-600{% endif %}">Oldest</a> |
+                    <a href="?sort_by=-updated_at"
+                       class="{% if is_sorted_by_newest %}text-blue-600{% endif %}">Newest</a>
+                </div>
+                <ul class="space-y-4">
+                    {% for conversation in conversations %}
+                        <li class="p-4 bg-white rounded shadow-md">
+                            <div>
+                                <p>
+                                    <strong>Conversation ID:</strong> {{ conversation.collection }}
+                                </p>
+                                <p>
+                                    <strong>Last Updated:</strong> {{ conversation.updated_at|date:"Y-m-d H:i:s" }}
+                                </p>
+                                <p>
+                                    <strong>Message Count:</strong> {{ conversation.message_count }}
+                                </p>
+                            </div>
+                            <form method="post" action="{% url 'delete_chatroom' conversation.id %}">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Delete</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% if not conversations %}<p class="text-xl text-gray-700">You have no active chatrooms.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

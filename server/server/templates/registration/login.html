@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="bg-gray-200 h-screen font-sans">
+        <div class="container mx-auto flex flex-col items-center justify-center h-screen">
+            <div class="bg-white p-8 rounded-lg shadow-md w-full md:w-2/3 lg:w-1/3">
+                <h1 class="text-2xl mb-4 font-bold text-gray-800">Login</h1>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label for="id_username" class="text-gray-700">Username</label>
+                        <input type="text"
+                               name="{{ form.username.name }}"
+                               class="w-full px-4 py-2 rounded border focus:ring focus:ring-opacity-50"
+                               id="id_username"
+                               autofocus
+                               required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="id_password" class="text-gray-700">Password</label>
+                        <input type="password"
+                               name="{{ form.password.name }}"
+                               class="w-full px-4 py-2 rounded border focus:ring focus:ring-opacity-50"
+                               id="id_password"
+                               required>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
