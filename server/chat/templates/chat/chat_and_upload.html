@@ -5,8 +5,9 @@
         <title>Chat UI</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
     </head>
-    <body class="bg-gray-200">
+    <body class="bg-gray-200" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <div class="container mx-auto p-4 flex h-screen">
             <!-- Sidebar for Chat Rooms -->
             <div class="w-1/4 bg-white p-4 shadow-lg overflow-y-auto"
@@ -64,9 +65,15 @@
                         </div>
                     </div>
                     <div class="flex items-start mb-4">
-                        <div hx-sse="connect:/api/chat/stream_chat/{{ room_id }}"
-                             hx-trigger="load"
-                             class="bg-gray-200 h-60 p-4 rounded overflow-y-scroll">
+                        <div id="chat-box"
+                             hx-ext="sse"
+{#                                                         hx-sse="connect:/api/chat/stream_chat/{{ room_uuid }}"#}
+{#                                sse-connect="{% url 'chat-api:stream_chat' room_uuid %}"#}
+{#                            hx-sse="connect:{% url 'chat-api:stream_chat' room_uuid %}"#}
+                            hx-post="{% url 'chat-api:stream_chat' room_uuid %}"
+                            hx-vars="message: document.getElementById('chat-message').value"
+                            hx-trigger="updateChat"
+                            >
                             <!-- Chat messages will appear here -->
                         </div>
                     </div>
@@ -87,34 +94,63 @@
                             <span class="mt-2 text-base leading-normal">Select a file</span>
                             <input type="file" class="hidden">
                         </label>
+                        <!-- List of uploaded files -->
+                        <div class="ml-4 flex flex-col">
+                            <p class="text-base leading-normal mb-2">Uploaded Files:</p>
+                            <ul>
+                                {% for file in uploaded_files %}
+                                    <li class="flex justify-between items-center mb-1">
+                                        <span>{{ file.file_name }}</span>
+                                        <form method="post" action="{% url 'file_delete' file.file_id %}">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                         <!-- Message Input -->
                         <input type="text"
                                class="flex-1 ml-4 p-2 rounded border"
+                               id="chat-message"
                                placeholder="Type your message">
                         <!-- Send Button -->
-                        <button hx-post="/chat/room/{{ room_id }}/"
-                                hx-params="{'message': document.getElementById('chat-message').value}"
-                                hx-trigger="click"
+                        <button id="send-button"
                                 class="ml-4 px-6 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Send</button>
                     </div>
                 </div>
             </div>
         </div>
         <script>
-    const room_id = "{{ room_id }}";  // This comes from the Django template context
+    const room_uuid = "{{ room_uuid }}";  // This comes from the Django template context
     const chatBox = document.getElementById('chat-box');
-    const chatDiv = chatBox.querySelector('[hx-sse]');
 
-    chatDiv.addEventListener('htmx:sseMessage', (event) => {
-        const messages = JSON.parse(event.detail.message.data);
-        let chatHTML = '';
 
-        for (const message of messages) {
-            chatHTML += `<div class="border-b border-gray-300 py-2">${message.timestamp}: ${message.message}</div>`;
-        }
 
-        chatDiv.innerHTML = chatHTML;
+        document.addEventListener('DOMContentLoaded', function () {
+    const sendButton = document.getElementById('send-button');
+
+    sendButton.addEventListener('click', function () {
+        // Get the message from input
+        const message = document.getElementById('chat-message').value;
+
+        // Update the 'hx-vars' attribute in the chat-box to send the new message
+        chatBox.setAttribute('hx-vars', `message: "${message}"`);
+
+        // Dispatch the custom 'updateChat' event
+        const updateChatEvent = new Event('updateChat', {bubbles: true});
+        chatBox.dispatchEvent(updateChatEvent);
+
+        // Optionally, you can clear the input after sending
+        document.getElementById('chat-message').value = '';
     });
+});
+
+
+
         </script>
     </body>
 </html>
