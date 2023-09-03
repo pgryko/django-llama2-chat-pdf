@@ -15,6 +15,8 @@ from decouple import config
 from dj_database_url import parse as db_url
 import os
 
+from django.urls import reverse, reverse_lazy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -169,6 +171,10 @@ CSRF_TRUSTED_ORIGINS = config(
 )
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
+
+LOGIN_REDIRECT_URL = reverse_lazy("chatroom_list")
+LOGOUT_REDIRECT_URL = "/"
+
 
 if DEBUG:
     # Add django extensions
