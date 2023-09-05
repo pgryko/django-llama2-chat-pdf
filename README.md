@@ -15,7 +15,7 @@ com/pgryko/django-llama2-reactjs-chat-pdf).
 ```shell
 poetry install
 poetry shell
-python -m uvicorn server.asgi:application --reload
+python -m uvicorn server.asgi:application --reload --reload-include "*.html"
 ```
 
 ```bash

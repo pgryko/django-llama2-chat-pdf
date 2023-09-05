@@ -17,6 +17,7 @@ class GetResultMetaNone(TypedDict):
 class Role(str, Enum):
     USER = "user"
     SYSTEM = "system"
+    CONTEXT = "context"
 
 
 class Message(BaseModel):

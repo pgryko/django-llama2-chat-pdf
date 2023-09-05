@@ -1,6 +1,39 @@
 from unittest.mock import patch
 
 import pytest
+from django.contrib.auth import get_user_model
+from django.test.client import Client, AsyncClient
+
+User = get_user_model()
+
+
+@pytest.fixture
+def test_user():
+    return User.objects.create_user(
+        username="testuser", email="test@test.com", password="testpassword"
+    )
+
+
+@pytest.fixture
+def authenticated_client(test_user):
+    client = Client()
+    client.login(username=test_user.username, password="testpassword")
+    return client
+
+
+@pytest.fixture
+async def async_test_user():
+    return await User.objects.create_user(
+        username="testuser", email="test@test.com", password="testpassword"
+    )
+
+
+@pytest.fixture
+async def async_authenticated_client(async_test_user):
+    user = await async_test_user
+    client = AsyncClient()
+    client.login(username=user.username, password="testpassword")
+    return client
 
 
 # Helper function to mock an exception from replicate.run

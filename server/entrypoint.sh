@@ -7,4 +7,4 @@
 python manage.py migrate --noinput
 
 # Start server
-uvicorn server.asgi:application --reload --host 0.0.0.0 --port 8000
+uvicorn server.asgi:application --reload  --reload-include "*.html" --host 0.0.0.0 --port 8000

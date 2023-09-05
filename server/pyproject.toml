@@ -48,6 +48,7 @@ pytest-xdist = "^3.3.1"
 pip-licenses = "^4.3.2"
 jupyterlab = "^4.0.5"
 djlint = "^1.32.1"
+watchfiles = "^0.20.0"
 
 [build-system]
 requires = ["poetry-core"]
