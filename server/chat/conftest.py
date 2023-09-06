@@ -23,7 +23,7 @@ def authenticated_client(test_user):
 
 @pytest.fixture
 async def async_test_user():
-    return await User.objects.create_user(
+    return await User.objects.acreate(
         username="testuser", email="test@test.com", password="testpassword"
     )
 

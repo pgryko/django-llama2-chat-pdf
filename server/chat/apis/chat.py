@@ -1,5 +1,6 @@
 from typing import List
 
+from asgiref.sync import sync_to_async
 from django.http import StreamingHttpResponse
 from ninja import Router
 from ninja.params import Form
@@ -59,7 +60,9 @@ async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
 
 
 @router.post("/messages/{room_uuid}")
-async def set_messages(room_uuid, messages: List[schemas.Message]) -> List[Message]:
+async def set_messages(
+    request, room_uuid, messages: List[schemas.Message]
+) -> List[Message]:
     # Not a clean API - used currently for prototyping, so we can set System messages
     # and prompts from the client side.
     # There's also no strict ordering of messages - i.e. a system message can come after a user message.
@@ -76,13 +79,16 @@ async def set_messages(room_uuid, messages: List[schemas.Message]) -> List[Messa
 
 
 @router.post("/message/{room_uuid}")
-async def set_user_message(room_uuid: str, message: schemas.Message) -> schemas.Message:
+async def set_user_message(
+    request, room_uuid: str, message: schemas.Message
+) -> schemas.Message:
     # Not a clean API - used currently for prototyping, so we can set System messages
     # and prompts from the client side.
     # There's also no strict ordering of messages - i.e. a system message can come after a user message.
-    conversation = Conversation.objects.get(uuid=room_uuid)
 
-    conversation.messages.all().delete()
+    conversation = await Conversation.objects.aget(uuid=room_uuid)
+
+    await conversation.messages.all().adelete()
 
     # Message.objects.create(
     #     conversation=conversation,
@@ -90,10 +96,12 @@ async def set_user_message(room_uuid: str, message: schemas.Message) -> schemas.
     #     content=system_prompt,
     # )
 
-    Message.objects.create(
+    await Message.objects.acreate(
         conversation=conversation,
         message_type=message.role,
         content=message.content,
     )
 
-    return conversation.messages.all()
+    conversation.arefresh_from_db()
+
+    return await sync_to_async(conversation.messages.all)()
