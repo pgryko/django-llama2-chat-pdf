@@ -102,6 +102,6 @@ async def set_user_message(
         content=message.content,
     )
 
-    conversation.arefresh_from_db()
+    await conversation.arefresh_from_db()
 
     return await sync_to_async(conversation.messages.all)()

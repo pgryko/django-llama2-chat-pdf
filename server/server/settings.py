@@ -9,13 +9,20 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import logging
 from pathlib import Path
+
+import structlog
 from decouple import config
 from dj_database_url import parse as db_url
 import os
 
 from django.urls import reverse_lazy
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from structlog_sentry import SentryProcessor
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -174,6 +181,39 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 
 LOGIN_REDIRECT_URL = reverse_lazy("chatroom_list")
 LOGOUT_REDIRECT_URL = "/"
+
+SENTRY_DSN = config("SENTRY_DSN", None)
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+            LoggingIntegration(event_level=None, level=None),
+        ],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production (e.g. 0.1
+        traces_sample_rate=config("SENTRY_TRACES_SAMPLE_RATE", 1.0, cast=float),
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=config("SENTRY_PROFILE_SAMPLE_RATE", 1.0, cast=float),
+        environment=os.environ.get("ENV_NAME", "dev"),
+    )
+
+    structlog.configure(
+        processors=[
+            structlog.stdlib.add_logger_name,  # optional, must be placed before SentryProcessor()
+            structlog.stdlib.add_log_level,  # required before SentryProcessor()
+            SentryProcessor(event_level=logging.ERROR),
+        ],
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.stdlib.BoundLogger,
+    )
 
 
 if DEBUG:
