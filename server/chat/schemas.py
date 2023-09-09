@@ -1,3 +1,6 @@
+from datetime import datetime
+import uuid
+from ninja import Schema
 from pydantic import BaseModel
 from typing import List, Mapping, Union, Optional, TypedDict
 from chromadb.api.types import ID, Embedding, Document
@@ -23,6 +26,23 @@ class Role(str, Enum):
 class Message(BaseModel):
     role: Role
     content: str
+
+
+class MessageTypeEnum(str, Enum):
+    SYS = "system"
+    USER = "user"
+    CONTEXT = "vectordb"
+    LLM = "llm"
+
+
+class MessageSchema(Schema):
+    uuid: uuid.UUID
+    message_type: MessageTypeEnum
+    content: str
+    updated_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
 
 
 class ChatInput(BaseModel):

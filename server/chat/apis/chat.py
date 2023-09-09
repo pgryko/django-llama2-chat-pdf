@@ -81,7 +81,7 @@ async def set_messages(
 @router.post("/message/{room_uuid}")
 async def set_user_message(
     request, room_uuid: str, message: schemas.Message
-) -> schemas.Message:
+) -> list[schemas.MessageSchema]:
     # Not a clean API - used currently for prototyping, so we can set System messages
     # and prompts from the client side.
     # There's also no strict ordering of messages - i.e. a system message can come after a user message.
@@ -89,12 +89,6 @@ async def set_user_message(
     conversation = await Conversation.objects.aget(uuid=room_uuid)
 
     await conversation.messages.all().adelete()
-
-    # Message.objects.create(
-    #     conversation=conversation,
-    #     message_type=message.role,
-    #     content=system_prompt,
-    # )
 
     await Message.objects.acreate(
         conversation=conversation,
@@ -104,4 +98,11 @@ async def set_user_message(
 
     await conversation.arefresh_from_db()
 
-    return await sync_to_async(conversation.messages.all)()
+    messages = await sync_to_async(conversation.messages.all)()
+
+    messages_list = await sync_to_async(list)(messages)
+
+    # Convert each instance into a serialized schema
+    serialized_messages = [schemas.MessageSchema.from_orm(msg) for msg in messages_list]
+
+    return serialized_messages

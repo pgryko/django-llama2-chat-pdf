@@ -45,10 +45,10 @@ async def test_set_user_message():
     assert response.status_code == 200
 
     # Fetch the updated conversation from the database
-    updated_conversation = Conversation.objects.get(uuid=conversation.uuid)
-    assert updated_conversation.messages.count() == 1
+    updated_conversation = await Conversation.objects.aget(uuid=conversation.uuid)
+    assert await updated_conversation.messages.acount() == 1
 
     # Assert that the created message matches the posted message
-    created_message = updated_conversation.messages.first()
+    created_message = await updated_conversation.messages.afirst()
     assert created_message.message_type == message_data["role"]
     assert created_message.content == message_data["content"]

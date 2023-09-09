@@ -27,10 +27,10 @@ class Conversation(TimeStampField):
 
 class Message(TimeStampField):
     TYPE_CHOICES = (
-        ("SYS", "System Message"),
-        ("USER", "User Message"),
-        ("CONTEXT", "Vector DB Context"),
-        ("LLM", "LLM Response"),
+        ("SYS", "system"),
+        ("USER", "user"),
+        ("CONTEXT", "vectordb"),
+        ("LLM", "llm"),
     )
     conversation = models.ForeignKey(
         Conversation, related_name="messages", on_delete=models.CASCADE
