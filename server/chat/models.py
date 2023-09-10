@@ -25,6 +25,15 @@ class Conversation(TimeStampField):
         ordering = ["-updated_at"]
 
 
+class DocumentFile(TimeStampField):
+    file = models.FileField(upload_to="uploads/")
+    md5 = models.CharField(max_length=32, blank=True, null=True)
+
+    conversation = models.ForeignKey(
+        Conversation, related_name="documentfiles", on_delete=models.CASCADE
+    )
+
+
 class Message(TimeStampField):
     TYPE_CHOICES = (
         ("SYS", "system"),

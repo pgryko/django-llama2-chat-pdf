@@ -151,6 +151,9 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
@@ -184,6 +187,10 @@ LOGIN_URL = "/login/"
 LOGOUT_REDIRECT_URL = "/"
 
 SENTRY_DSN = config("SENTRY_DSN", None)
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
 
 if SENTRY_DSN:
     sentry_sdk.init(

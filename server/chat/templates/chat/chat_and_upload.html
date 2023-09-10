@@ -24,7 +24,6 @@
                                             <span class="text-gray-500">Conversation ID:</span>
                                             {{ conversation.uuid }}
                                         </p>
-                                        {#                            <p class="text-sm text-gray-500">{{ conversation.last_message_preview }}</p>#}
                                         <p class="text-xs text-gray-400">{{ conversation.updated_at }}</p>
                                     </div>
                                 </div>
@@ -63,18 +62,28 @@
                 <div class="border-t p-4">
                     <div class="flex items-center">
                         <!-- File Upload -->
-                        <label class="flex items-center px-4 py-2 bg-gray-200 text-blue-500 rounded-lg tracking-wide uppercase cursor-pointer hover:bg-blue-500 hover:text-white">
-                            <svg class="w-4 h-4 mr-2"
-                                 fill="currentColor"
-                                 xmlns="http://www.w3.org/2000/svg"
-                                 viewBox="0 0 20 20">
-                                <path d="M10 6a1 1 0 01.293.07l6 4a1 1 0 01-1.086 1.682l-4.207-.964l-.293.633a1 1 0 01-1.28.385l-6-3a1 1 0 111.086-1.682l4.207.964l.293-.633a1 1 0 01.707-.464z">
-                                </path>
-                                <path d="M5 10a1 1 0 010-2h10a1 1 0 010 2H5z"></path>
-                            </svg>
-                            <span class="mt-2 text-base leading-normal">Select a file</span>
-                            <input type="file" class="hidden">
-                        </label>
+                        <form action="{% url 'chat-api:upload_file' room_uuid %}"
+                              method="post"
+                              enctype="multipart/form-data"
+                              hx-post="{% url 'chat-api:upload_file' room_uuid %}"
+                              hx-trigger="change from:#fileInput"
+                              hx-swap="none">
+                            <!-- CSRF token for Django forms -->
+                            {% csrf_token %}
+                            <label class="flex items-center px-4 py-2 bg-gray-200 text-blue-500 rounded-lg tracking-wide uppercase cursor-pointer hover:bg-blue-500 hover:text-white">
+                                <svg class="w-4 h-4 mr-2"
+                                     fill="currentColor"
+                                     xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 20 20">
+                                    <path d="M10 6a1 1 0 01.293.07l6 4a1 1 0 01-1.086 1.682l-4.207-.964l-.293.633a1 1 0 01-1.28.385l-6-3a1 1 0 111.086-1.682l4.207.964l.293-.633a1 1 0 01.707-.464z">
+                                    </path>
+                                    <path d="M5 10a1 1 0 010-2h10a1 1 0 010 2H5z"></path>
+                                </svg>
+                                <span class="mt-2 text-base leading-normal">Select a file</span>
+                                <input type="file" name="file" class="hidden" id="fileInput">
+                            </label>
+                            <input type="submit" value="Upload" style="display: none;">
+                        </form>
                         <!-- List of uploaded files -->
                         <div class="ml-4 flex flex-col">
                             <p class="text-base leading-normal mb-2">Uploaded Files:</p>
@@ -146,8 +155,22 @@
 
 
     document.addEventListener('DOMContentLoaded', function () {
+
+        // Submit the form when a file is selected
+        {#const fileInput = document.getElementById('fileInput');#}
+        {#const uploadForm = fileInput.closest('form');  // Get the enclosing form#}
+        {##}
+        {#fileInput.addEventListener('change', function() {#}
+        {#    if (fileInput.files.length > 0) {#}
+        {#        // If a file is selected, submit the form directly.#}
+        {#        uploadForm.submit();#}
+        {#    }#}
+        {#});#}
+
+        // Send a GET request to the get_messages endpoint to obtain messages
         const sendButton = document.getElementById('send-button');
 
+        // Listen for the send button click, so we can query the server for messages
         sendButton.addEventListener('click', async function () {
             // Get the message from input
             const message = document.getElementById('chat-message').value;

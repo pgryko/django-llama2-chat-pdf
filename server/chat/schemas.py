@@ -51,3 +51,14 @@ class ChatInput(BaseModel):
 
 class ChatOutput(BaseModel):
     message: Message
+
+
+class TimeStampSchema(BaseModel):
+    created_at: datetime
+    updated_at: datetime
+
+
+class DocumentFileSchema(TimeStampSchema):
+    url: str
+    name: str
+    md5: Optional[str]

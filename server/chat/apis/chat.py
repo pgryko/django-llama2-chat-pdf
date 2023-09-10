@@ -2,7 +2,7 @@ from typing import List
 
 from asgiref.sync import sync_to_async
 from django.http import StreamingHttpResponse
-from ninja import Router
+from ninja import Router, UploadedFile, File
 
 from structlog import get_logger
 
@@ -10,8 +10,10 @@ import chat.services as services
 
 from pydantic.types import UUID4
 
-from chat.models import Conversation, Message
+from chat.models import Conversation, Message, DocumentFile
 from chat import schemas
+from chat.schemas import DocumentFileSchema
+from server.utils import aget_object_or_404
 
 logger = get_logger()
 
@@ -33,6 +35,21 @@ router = Router()
 #     response["Cache-Control"] = "no-cache"
 #     response["Transfer-Encoding"] = "chunked"
 #     return response
+
+
+@router.post("/upload/{room_uuid}", response=DocumentFileSchema)
+async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...)):
+    room = await aget_object_or_404(Conversation, uuid=room_uuid)
+
+    created_file = await DocumentFile.objects.acreate(file=file, conversation=room)
+
+    return DocumentFileSchema(
+        created_at=created_file.created_at,
+        updated_at=created_file.updated_at,
+        url=created_file.file.url,
+        md5=created_file.md5,
+        name=created_file.file.name,
+    )
 
 
 @router.get("/stream_chat/{room_uuid}")
