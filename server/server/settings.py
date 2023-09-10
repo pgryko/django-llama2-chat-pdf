@@ -180,6 +180,7 @@ CSRF_TRUSTED_ORIGINS = config(
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 
 LOGIN_REDIRECT_URL = reverse_lazy("chatroom_list")
+LOGIN_URL = "/login/"
 LOGOUT_REDIRECT_URL = "/"
 
 SENTRY_DSN = config("SENTRY_DSN", None)
