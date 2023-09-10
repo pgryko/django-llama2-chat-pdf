@@ -32,6 +32,12 @@ class ChromaDBSingleton:
             # self.ef = embedding_functions.InstructorEmbeddingFunction(
             #     model_name="hkunlp/instructor-xl", device="cuda")
 
+            # BAAI/bge-base-en
+
+            embedding_functions.HuggingFaceEmbeddingFunction(
+                api_key="YOUR_API_KEY", model_name="BAAI/bge-base-en"
+            )
+
             self.client = chromadb.PersistentClient(path=settings.CHROMADB_PATH)
 
         def get_or_create_collection(self, name="default", embedding_function=None):

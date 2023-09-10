@@ -3,7 +3,6 @@ from typing import List
 from asgiref.sync import sync_to_async
 from django.http import StreamingHttpResponse
 from ninja import Router
-from ninja.params import Form
 
 from structlog import get_logger
 
@@ -20,35 +19,36 @@ router = Router()
 
 
 # for Nginx proxy_buffering off;
-@router.post("/stream_chat/{room_uuid}")
-# Currently seems like it's not possible to use a SSE with a post request (from the client side)
-async def stream_chat(
-    request, room_uuid: UUID4, message: str = Form(...)
-) -> StreamingHttpResponse:
-    # Allow a user to have a chat using the data stored in a specific collection.
-
-    response = StreamingHttpResponse(
-        streaming_content=services.get_replicate_stream(message),
-        content_type="text/event-stream",
-    )
-    response["Cache-Control"] = "no-cache"
-    response["Transfer-Encoding"] = "chunked"
-    return response
+# @router.post("/stream_chat/{room_uuid}")
+# # Currently seems like it's not possible to use a SSE with a post request (from the client side)
+# async def stream_chat(
+#     request, room_uuid: UUID4, message: str = Form(...)
+# ) -> StreamingHttpResponse:
+#     # Allow a user to have a chat using the data stored in a specific collection.
+#
+#     response = StreamingHttpResponse(
+#         streaming_content=services.get_replicate_stream(message),
+#         content_type="text/event-stream",
+#     )
+#     response["Cache-Control"] = "no-cache"
+#     response["Transfer-Encoding"] = "chunked"
+#     return response
 
 
 @router.get("/stream_chat/{room_uuid}")
 # Currently seems like it's not possible to use a SSE with a post request (from the client side)
+# Hence we set message/messages via set_user_message and then run a get via this endpoint.
 async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
     # Allow a user to have a chat using the data stored in a specific collection.
 
-    message = (
-        Message.objects.filter(conversation__uuid=room_uuid)
-        .order_by("-created_at")
-        .first()
+    message = await (
+        Message.objects.filter(conversation__uuid=room_uuid, message_type="user")
+        .order_by("created_at")
+        .afirst()
     )
 
     if message is None:
-        raise Exception("No messages found for this conversation")
+        raise Exception("No user messages found for this conversation")
 
     response = StreamingHttpResponse(
         streaming_content=services.get_replicate_stream(message.content),

@@ -55,6 +55,9 @@
                     <div id="chat-box">
                         <!-- Chat messages will appear here -->
                     </div>
+                    <div id="sse" class="hidden" hx-sse="true" hx-trigger="sse">
+                        <!-- This is where the SSE stream will be injected -->
+                    </div>
                 </div>
                 <!-- Input and Buttons -->
                 <div class="border-t p-4">
@@ -147,8 +150,7 @@
 
         sendButton.addEventListener('click', async function () {
             // Get the message from input
-            const input_message_element = document.getElementById('chat-message')
-            const message = input_message_element.value;
+            const message = document.getElementById('chat-message').value;
 
             const RoleEnum = {
                 USER: 'user',
@@ -162,7 +164,7 @@
             };
 
 
-            // Send a POST request to the stream_chat endpoint
+            // Send a POST request to set messages
             const message_set_response = await fetch(`{% url 'chat-api:set_user_message' room_uuid %}`, {
                 method: "POST",
                 headers: {
@@ -176,39 +178,30 @@
                 const responseData = await message_set_response.json(); // Await the Promise returned by .json()
                 displayMessages(responseData);
                 // Clear the input
-                input_message_element.value = "";
+                document.getElementById('chat-message').value = '';
             } else {
                 console.error("Failed to send message:", response.statusText);
                 return;
             }
 
 
-            // Send a POST request to the stream_chat endpoint
-            const response = await fetch(`/api/stream_chat/${room_uuid}`, {
-                method: "POST",
+            // Send a GET request to the stream_chat endpoint to obtain SSE stream
+            const response = await fetch(`{% url 'chat-api:get_stream_chat' room_uuid %}`, {
+                method: "GET",
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
                     "X-CSRFToken": "{{ csrf_token }}",
                 },
-                body: `message=${message}`,
             });
 
             if (response.ok) {
                 // Clear the input
-                messageInput.value = "";
             } else {
                 console.error("Failed to send message:", response.statusText);
             }
 
-            // Update the 'hx-vars' attribute in the chat-box to send the new message
-            chatBox.setAttribute('hx-vars', `message: "${message}"`);
-
-            // Dispatch the custom 'updateChat' event
-            const updateChatEvent = new Event('updateChat', {bubbles: true});
-            chatBox.dispatchEvent(updateChatEvent);
 
             // Optionally, you can clear the input after sending
-            document.getElementById('chat-message').value = '';
+            {#document.getElementById('chat-message').value = '';#}
         });
     });
 
