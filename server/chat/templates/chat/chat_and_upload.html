@@ -55,8 +55,8 @@
                     <div id="chat-box">
                         <!-- Chat messages will appear here -->
                     </div>
-                    <div id="sse" class="hidden" hx-sse="true" hx-trigger="sse">
-                        <!-- This is where the SSE stream will be injected -->
+                    <div id="llm-response">
+                        <!-- This is where the response stream will be injected -->
                     </div>
                 </div>
                 <!-- Input and Buttons -->
@@ -179,13 +179,27 @@
                 displayMessages(responseData);
                 // Clear the input
                 document.getElementById('chat-message').value = '';
+                // Clear previous LLM response
+                document.getElementById('llm-response').innerHTML = '';
             } else {
                 console.error("Failed to send message:", response.statusText);
                 return;
             }
 
 
-            // Send a GET request to the stream_chat endpoint to obtain SSE stream
+            function injectMessageToChat(message) {
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('p-2', 'border-b', 'border-gray-300');
+
+            const messageContent = document.createElement('p');
+            messageContent.innerText = message; // assuming message has a content property
+
+            messageDiv.appendChild(messageContent);
+            chatBox.appendChild(messageDiv);
+        }
+
+        // Send a GET request to the stream_chat endpoint to obtain stream
             const response = await fetch(`{% url 'chat-api:get_stream_chat' room_uuid %}`, {
                 method: "GET",
                 headers: {
@@ -193,15 +207,47 @@
                 },
             });
 
-            if (response.ok) {
-                // Clear the input
-            } else {
-                console.error("Failed to send message:", response.statusText);
-            }
+        if (response.body) {
+            // Get the readable stream from the response body
+            const reader = response.body.getReader();
 
+            // Create a new TextDecoder to parse UTF-8 encoded chunks
+            const decoder = new TextDecoder("utf-8");
 
-            // Optionally, you can clear the input after sending
-            {#document.getElementById('chat-message').value = '';#}
+            // Define a function that reads the stream
+            const processStream = async () => {
+                while (true) {
+                    // Read a chunk from the stream
+                    const { value, done } = await reader.read();
+
+                    if (done) {
+                        break;
+                    }
+
+                    // Convert the chunk into a string
+                    const chunk = decoder.decode(value, { stream: true });
+
+                    // Here you can handle the chunk, for example, parsing it as an SSE event
+                    // For this example, assuming each chunk is a valid JSON message:
+                    try {
+                        const llmResponse = document.getElementById('llm-response');
+
+                        llmResponse.innerHTML += chunk;
+
+                    } catch (e) {
+                        console.error("Failed to parse message:", e);
+                    }
+                }
+            };
+
+            // Start processing the stream
+            processStream().catch(err => {
+                console.error("Error reading the stream:", err);
+            });
+        } else {
+            console.error("Failed to send message:", response.statusText);
+        }
+
         });
     });
 
