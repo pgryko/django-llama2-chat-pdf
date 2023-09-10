@@ -27,6 +27,7 @@ Auto Lint using https://github.com/psf/black, isort and flake8
 $ black src
 $ isort src --filter-files --profile black
 $ flake8 --ignore=E501, W503, E722 --max-line-length=100 --max-complexity=10 src/
+$ djlint . --reformat
 ```
 
 ## Testing gitlab pipeline on localmachine
