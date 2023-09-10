@@ -46,9 +46,9 @@ async def test_set_user_message():
 
     # Fetch the updated conversation from the database
     updated_conversation = await Conversation.objects.aget(uuid=conversation.uuid)
-    assert await updated_conversation.messages.acount() == 1
+    assert await updated_conversation.messages.acount() == 2
 
     # Assert that the created message matches the posted message
-    created_message = await updated_conversation.messages.afirst()
+    created_message = await updated_conversation.messages.order_by("created_at").alast()
     assert created_message.message_type == message_data["role"]
     assert created_message.content == message_data["content"]
