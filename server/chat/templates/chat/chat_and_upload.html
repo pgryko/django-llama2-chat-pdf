@@ -68,17 +68,6 @@
                 <div id="chat-box">
                     <!-- Chat messages will appear here -->
                 </div>
-                {#                        <div id="chat-box"#}
-                {#                             hx-ext="sse"#}
-                {#                                                         hx-sse="connect:/api/chat/stream_chat/{{ room_uuid }}"#}
-                {#                                sse-connect="{% url 'chat-api:stream_chat' room_uuid %}"#}
-                {#                            hx-sse="connect:{% url 'chat-api:stream_chat' room_uuid %}"#}
-                {#                            hx-post="{% url 'chat-api:stream_chat' room_uuid %}"#}
-                {#                            hx-vars="message: document.getElementById('chat-message').value"#}
-                {#                            hx-trigger="updateChat"#}
-                {#                            >#}
-                {#                            <!-- Chat messages will appear here -->#}
-                {#                        </div>#}
             </div>
         </div>
         <!-- Input and Buttons -->

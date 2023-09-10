@@ -39,4 +39,4 @@ class Message(TimeStampField):
     content = models.TextField()
 
     class Meta:
-        ordering = ["-updated_at"]
+        ordering = ["updated_at"]

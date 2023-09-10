@@ -92,6 +92,13 @@ async def set_user_message(
 
     await Message.objects.acreate(
         conversation=conversation,
+        message_type="system",
+        content="Use the following pieces of context to answer the users question. If you don't know the answer, "
+        "just say that you don't know, don't try to make up an answer.",
+    )
+
+    await Message.objects.acreate(
+        conversation=conversation,
         message_type=message.role,
         content=message.content,
     )
