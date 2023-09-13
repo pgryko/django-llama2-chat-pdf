@@ -5,6 +5,7 @@ server/server/media/
 .chromadb
 .idea
 server/staticfiles
+server/media/uploads/*
 
 .ipynb_checkpoints
 
