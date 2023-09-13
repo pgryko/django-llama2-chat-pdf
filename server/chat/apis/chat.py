@@ -111,7 +111,7 @@ async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
     else:
         prompt = user_message.content
 
-    logger.info("Prompt", prompt=prompt, room=room_uuid)
+    logger.info("Prompt", prompt=prompt, room=room_uuid, msg=prompt)
 
     response = StreamingHttpResponse(
         streaming_content=services.get_replicate_stream(prompt),
