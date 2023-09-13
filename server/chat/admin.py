@@ -1,5 +1,6 @@
 # Register your models here.
 from django.contrib import admin, messages
+from django.db import transaction
 from django.http import HttpResponseRedirect
 
 from chat.models import ChromaDBCollection, Conversation, Message
@@ -8,24 +9,46 @@ from chat.singleton import ChromaDBSingleton
 
 @admin.register(ChromaDBCollection)
 class ChromaDBCollectionAdmin(admin.ModelAdmin):
-    list_display = ("uuid",)
+    list_display = ("chroma_id", "name", "count", "peek")
 
+    @transaction.atomic
     def get_queryset(self, request):
-        # Return a dummy QuerySet for the admin interface
-        return ChromaDBCollection.objects.none()
-
-    def changelist_view(self, request, extra_context=None):
+        # fake_qs = FakeQuerySet(model=ChromaDBCollection, using="default")
+        #
+        # tmp_list = list(fake_qs)  # Force the queryset to be evaluated
+        # return fake_qs
         client = ChromaDBSingleton().get_client()
-        collections = client.peek()  # Get the first 10 items
-        extra_context = extra_context or {}
-        extra_context["collections"] = collections
-        return super().changelist_view(request, extra_context=extra_context)
+        collections = client.list_collections()
+        # collections are a list of dicts containing
+        # {'name': '66af9efe-1e99-40d2-9799-c1cf99d9f969',
+        #  'id': UUID('02fa98e2-806c-4aa9-9913-b45cbd96e413'),
+        #  'metadata': None}
+        ChromaDBCollection.objects.all().delete()
 
-    def count(self, obj):
-        client = ChromaDBSingleton().get_client()
-        return client.get_collection(name=obj.name).count()
+        instances = [
+            ChromaDBCollection(
+                chroma_id=col.id, name=col.name, count=col.count(), peek=col.peek()
+            )
+            for col in collections
+        ]
 
-    count.short_description = "Count"
+        ChromaDBCollection.objects.bulk_create(instances)
+
+        return ChromaDBCollection.objects.all()
+
+    # def changelist_view(self, request, extra_context=None):
+    #     client = ChromaDBSingleton().get_client()
+    #     collections = client.list_collections()
+    #     # collections = client.peek()  # Get the first 10 items
+    #     extra_context = extra_context or {}
+    #     extra_context["collections"] = collections
+    #     return super().changelist_view(request, extra_context=extra_context)
+    #
+    # def count(self, obj):
+    #     client = ChromaDBSingleton().get_client()
+    #     return client.get_collection(name=obj.name).count()
+    #
+    # count.short_description = "Count"
 
     def save_model(self, request, obj, form, change):
         client = ChromaDBSingleton().get_client()

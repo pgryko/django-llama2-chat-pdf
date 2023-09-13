@@ -9,12 +9,19 @@ User = get_user_model()
 
 
 class ChromaDBCollection(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4)
+    # ID used by chromadb
+    chroma_id = models.UUIDField(default=uuid.uuid4)
+    # Name that we used to create the collection, we should standardize on UUIDs
+    name = models.CharField(max_length=255)
+    count = models.IntegerField(default=0)
 
-    class Meta:
-        managed = (
-            False  # This ensures Django won't create a database table for this model
-        )
+    # Fist 10 items in the collection
+    peek = models.JSONField(default=dict)
+
+    # class Meta:
+    #     managed = (
+    #         False  # This ensures Django won't create a database table for this model
+    #     )
 
 
 class Conversation(TimeStampField):
