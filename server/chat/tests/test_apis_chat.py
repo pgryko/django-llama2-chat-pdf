@@ -5,11 +5,16 @@ from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test.client import AsyncClient
+import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
+from chat.models import Conversation, DocumentFile
+from uuid import uuid4
 
 
 from accounts.models import AccountUser
 from chat.models import Conversation
-
+from chat.tests.data import DATA_PATH
 
 pytestmark = pytest.mark.django_db()
 
@@ -52,3 +57,43 @@ async def test_set_user_message():
     created_message = await updated_conversation.messages.order_by("created_at").alast()
     assert created_message.message_type == message_data["role"]
     assert created_message.content == message_data["content"]
+
+
+# Skip for a couple of reasons:
+# 1. Test runs very slowly due to using an embedding via CPU
+# 2. ChromaDb is not properly configured for testing, i.e. proper teardown of the database
+# 3. We will likely swap out ChromaDb for milvus and use a hosted embedding service (via vllm?)
+@pytest.mark.skip(reason="Test too slow")
+@pytest.mark.asyncio
+async def test_upload_file(async_authenticated_client):
+    authenticated_client, user = await async_authenticated_client
+
+    # Setup
+    room_uuid = uuid4()
+    await Conversation.objects.acreate(uuid=room_uuid, user=user)
+
+    file_path = DATA_PATH / "entropy.pdf"
+
+    file = SimpleUploadedFile(
+        name="entropy.pdf",
+        content=file_path.read_bytes(),
+        content_type="application/octet-stream",
+    )
+
+    url = reverse("chat-api:upload_file", args=[str(room_uuid)])
+    response = await authenticated_client.post(url, {"file": file}, format="multipart")
+
+    # Validate response status
+    assert response.status_code == 200
+
+    # Validate that the DocumentFile was created
+    assert await DocumentFile.objects.acount() == 1
+    created_file = await DocumentFile.objects.afirst()
+
+    response_data = response.json()
+
+    # Validate response data
+    assert response_data["url"] == created_file.file.url
+    assert response_data["md5"] == created_file.md5
+
+    assert response_data["name"] == "uploads/entropy.pdf"

@@ -13,6 +13,10 @@ from pydantic.types import UUID4
 from chat.models import Conversation, Message, DocumentFile
 from chat import schemas
 from chat.schemas import DocumentFileSchema
+from chromadb.api.types import Documents as ChromadbDocuments
+from chromadb.api.models import Collection as ChromaDBCollection
+
+from chat.singleton import ChromaDBSingleton
 from server.utils import aget_object_or_404
 
 logger = get_logger()
@@ -41,7 +45,25 @@ router = Router()
 async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...)):
     room = await aget_object_or_404(Conversation, uuid=room_uuid)
 
-    created_file = await DocumentFile.objects.acreate(file=file, conversation=room)
+    content: bytes = file.read()
+    md5 = services.compute_md5(content)
+    text = services.get_pdf_text(content)
+    text_chunks: ChromadbDocuments = services.get_text_chunks(text)
+
+    collection: ChromaDBCollection = ChromaDBSingleton().get_or_create_collection(
+        str(room.collection)
+    )
+
+    # Append the md5 to the id to add pseudo uniqueness to uploaded documents.
+    collection.add(
+        documents=text_chunks,
+        ids=[md5 + str(i) for i in range(len(text_chunks))],
+        metadatas=[{"md5": md5} for _ in range(len(text_chunks))],
+    )
+
+    created_file = await DocumentFile.objects.acreate(
+        file=file, md5=md5, conversation=room
+    )
 
     return DocumentFileSchema(
         created_at=created_file.created_at,
@@ -53,8 +75,8 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
 
 
 @router.get("/stream_chat/{room_uuid}")
-# Currently seems like it's not possible to use a SSE with a post request (from the client side)
-# Hence we set message/messages via set_user_message and then run a get via this endpoint.
+# Currently a hack, as I originally started with SSE and then switched to streaming response
+# I'm learning :)
 async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
     # Allow a user to have a chat using the data stored in a specific collection.
 

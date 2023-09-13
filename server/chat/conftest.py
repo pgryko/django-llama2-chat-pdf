@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.test.client import Client, AsyncClient
 
@@ -30,10 +31,12 @@ async def async_test_user():
 
 @pytest.fixture
 async def async_authenticated_client(async_test_user):
-    user = await async_test_user
+    # user = await async_test_user
     client = AsyncClient()
-    client.login(username=user.username, password="testpassword")
-    return client
+    user = await async_test_user
+    await sync_to_async(client.force_login)(user)
+    # client.login(username=user.username, password="testpassword")
+    return client, user
 
 
 # Helper function to mock an exception from replicate.run

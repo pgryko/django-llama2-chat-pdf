@@ -1,3 +1,4 @@
+from chromadb.api.models import Collection as ChromaDBCollection
 from django.conf import settings
 from chromadb.utils import embedding_functions
 import chromadb
@@ -7,7 +8,8 @@ class ChromaDBSingleton:
     """
     A singleton class to provide a single point of access for ChromaDB.
 
-    This singleton initializes the default embedding function, creates a ChromaDB client, and sets up a default collection.
+    This singleton initializes the default embedding function, creates a ChromaDB client,
+    and sets up a default collection.
 
     Attributes:
         default_ef: The default embedding function.
@@ -23,24 +25,29 @@ class ChromaDBSingleton:
 
     class _ChromaDB:
         def __init__(self):
-            self.default_ef = embedding_functions.DefaultEmbeddingFunction()
-
             # Lots of different embedding functions are available.
             # https://docs.trychroma.com/embeddings
             # Embedding functions can be run on the CPU or GPU.
             # self.ef = embedding_functions.InstructorEmbeddingFunction()
             # self.ef = embedding_functions.InstructorEmbeddingFunction(
             #     model_name="hkunlp/instructor-xl", device="cuda")
+            # if settings.HUGGING_FACE_API_TOKEN:
+            #     # BAAI/bge-base-en
+            #     self.default_ef = embedding_functions.HuggingFaceEmbeddingFunction(
+            #         api_key=settings.HUGGING_FACE_API_TOKEN,
+            #         model_name="BAAI/bge-base-en",
+            #     )
+            # else:
+            #     # all-MiniLM-L6-v2
+            #     self.default_ef = embedding_functions.DefaultEmbeddingFunction()
 
-            # BAAI/bge-base-en
-
-            embedding_functions.HuggingFaceEmbeddingFunction(
-                api_key="YOUR_API_KEY", model_name="BAAI/bge-base-en"
-            )
+            self.default_ef = embedding_functions.DefaultEmbeddingFunction()
 
             self.client = chromadb.PersistentClient(path=settings.CHROMADB_PATH)
 
-        def get_or_create_collection(self, name="default", embedding_function=None):
+        def get_or_create_collection(
+            self, name="default", embedding_function=None
+        ) -> ChromaDBCollection:
             """
             Get or create a collection with the given name and embedding function.
 

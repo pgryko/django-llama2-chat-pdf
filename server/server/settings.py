@@ -191,6 +191,8 @@ SENTRY_DSN = config("SENTRY_DSN", None)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
+HUGGING_FACE_API_TOKEN = config("HUGGING_FACE_API_TOKEN", None)
+
 
 if SENTRY_DSN:
     sentry_sdk.init(
