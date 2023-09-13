@@ -51,7 +51,7 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
     text_chunks: ChromadbDocuments = services.get_text_chunks(text)
 
     collection: ChromaDBCollection = ChromaDBSingleton().get_or_create_collection(
-        str(room.collection)
+        name=str(room.collection)
     )
 
     # Append the md5 to the id to add pseudo uniqueness to uploaded documents.
@@ -80,17 +80,41 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
 async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
     # Allow a user to have a chat using the data stored in a specific collection.
 
-    message = await (
+    user_message = await (
         Message.objects.filter(conversation__uuid=room_uuid, message_type="user")
         .order_by("created_at")
         .afirst()
     )
 
-    if message is None:
+    system_message = await (
+        Message.objects.filter(conversation__uuid=room_uuid, message_type="system")
+        .order_by("created_at")
+        .afirst()
+    )
+
+    vector_db_context = await (
+        Message.objects.filter(conversation__uuid=room_uuid, message_type="vectordb")
+        .order_by("created_at")
+        .afirst()
+    )
+
+    if user_message is None:
         raise Exception("No user messages found for this conversation")
 
+    if vector_db_context is not None:
+        prompt = f"""<s>[INST] <<SYS>>
+                { system_message.content }
+                <</SYS>>
+                {vector_db_context.content}
+                { user_message.content } [/INST]"""
+
+    else:
+        prompt = user_message.content
+
+    logger.info("Prompt", prompt=prompt, room=room_uuid)
+
     response = StreamingHttpResponse(
-        streaming_content=services.get_replicate_stream(message.content),
+        streaming_content=services.get_replicate_stream(prompt),
         content_type="text/event-stream",
     )
     response["Cache-Control"] = "no-cache"
@@ -117,6 +141,18 @@ async def set_messages(
     return conversation.messages.all()
 
 
+@sync_to_async()
+def query_collection(collection_uuid: str, query: list[str]) -> ChromadbDocuments:
+    collection = ChromaDBSingleton().get_or_create_collection(name=collection_uuid)
+    response: list[list] = collection.query(
+        query_texts=query,
+        n_results=10,
+    )["documents"]
+
+    if len(response) > 0:
+        return "".join(response[0])
+
+
 @router.post("/message/{room_uuid}")
 async def set_user_message(
     request, room_uuid: str, message: schemas.Message
@@ -140,6 +176,16 @@ async def set_user_message(
         conversation=conversation,
         message_type=message.role,
         content=message.content,
+    )
+
+    vector_db_response = await query_collection(
+        str(conversation.collection), [message.content]
+    )
+
+    await Message.objects.acreate(
+        conversation=conversation,
+        message_type="vectordb",
+        content=vector_db_response,
     )
 
     await conversation.arefresh_from_db()
