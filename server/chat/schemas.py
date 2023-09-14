@@ -6,6 +6,8 @@ from typing import List, Mapping, Union, Optional, TypedDict
 from chromadb.api.types import ID, Embedding, Document
 from enum import Enum
 
+from chat.enums import MessageTypeChoices
+
 Metadata_None = Mapping[str, Union[str, int, float, bool, None]]
 
 
@@ -17,27 +19,21 @@ class GetResultMetaNone(TypedDict):
     metadatas: Optional[List[Union[Metadata_None, None]]]
 
 
-class Role(str, Enum):
-    USER = "user"
-    SYSTEM = "system"
-    CONTEXT = "context"
+class MessageType(str, Enum):
+    USER = MessageTypeChoices.USER
+    SYSTEM = MessageTypeChoices.SYSTEM
+    CONTEXT = MessageTypeChoices.CONTEXT
+    LLM = MessageTypeChoices.LLM
 
 
 class Message(BaseModel):
-    role: Role
+    role: MessageType
     content: str
-
-
-class MessageTypeEnum(str, Enum):
-    SYS = "system"
-    USER = "user"
-    CONTEXT = "vectordb"
-    LLM = "llm"
 
 
 class MessageSchema(Schema):
     uuid: uuid.UUID
-    message_type: MessageTypeEnum
+    message_type: MessageType
     content: str
     updated_at: Optional[datetime]
 

@@ -11,6 +11,7 @@ import chat.services as services
 from pydantic.types import UUID4
 
 from chat.models import Conversation, Message, DocumentFile
+from chat.enums import MessageTypeChoices
 from chat import schemas
 from chat.schemas import DocumentFileSchema
 from chromadb.api.types import Documents as ChromadbDocuments
@@ -22,23 +23,6 @@ from server.utils import aget_object_or_404
 logger = get_logger()
 
 router = Router()
-
-
-# for Nginx proxy_buffering off;
-# @router.post("/stream_chat/{room_uuid}")
-# # Currently seems like it's not possible to use a SSE with a post request (from the client side)
-# async def stream_chat(
-#     request, room_uuid: UUID4, message: str = Form(...)
-# ) -> StreamingHttpResponse:
-#     # Allow a user to have a chat using the data stored in a specific collection.
-#
-#     response = StreamingHttpResponse(
-#         streaming_content=services.get_replicate_stream(message),
-#         content_type="text/event-stream",
-#     )
-#     response["Cache-Control"] = "no-cache"
-#     response["Transfer-Encoding"] = "chunked"
-#     return response
 
 
 @router.post("/upload/{room_uuid}", response=DocumentFileSchema)
@@ -74,26 +58,34 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
     )
 
 
-@router.get("/stream_chat/{room_uuid}")
+# for Nginx proxy_buffering off;
 # Currently a hack, as I originally started with SSE and then switched to streaming response
-# I'm learning :)
+@router.get("/stream_chat/{room_uuid}")
 async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
     # Allow a user to have a chat using the data stored in a specific collection.
 
+    conversation = await Conversation.objects.aget(uuid=room_uuid)
+
     user_message = await (
-        Message.objects.filter(conversation__uuid=room_uuid, message_type="user")
+        Message.objects.filter(
+            conversation__uuid=room_uuid, message_type=MessageTypeChoices.USER
+        )
         .order_by("created_at")
         .afirst()
     )
 
     system_message = await (
-        Message.objects.filter(conversation__uuid=room_uuid, message_type="system")
+        Message.objects.filter(
+            conversation__uuid=room_uuid, message_type=MessageTypeChoices.SYSTEM
+        )
         .order_by("created_at")
         .afirst()
     )
 
     vector_db_context = await (
-        Message.objects.filter(conversation__uuid=room_uuid, message_type="vectordb")
+        Message.objects.filter(
+            conversation__uuid=room_uuid, message_type=MessageTypeChoices.CONTEXT
+        )
         .order_by("created_at")
         .afirst()
     )
@@ -111,10 +103,12 @@ async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
     else:
         prompt = user_message.content
 
-    logger.info("Prompt", prompt=prompt, room=room_uuid, msg=prompt)
+    # await logger.ainfo("Prompt", prompt=prompt, room=room_uuid, msg=prompt)
 
     response = StreamingHttpResponse(
-        streaming_content=services.get_replicate_stream(prompt),
+        streaming_content=services.get_replicate_stream(
+            prompt=prompt, conversation=conversation
+        ),
         content_type="text/event-stream",
     )
     response["Cache-Control"] = "no-cache"
@@ -142,7 +136,7 @@ async def set_messages(
 
 
 @sync_to_async()
-def query_collection(collection_uuid: str, query: list[str]) -> ChromadbDocuments:
+def query_collection(collection_uuid: str, query: list[str]) -> str:
     collection = ChromaDBSingleton().get_or_create_collection(name=collection_uuid)
     response: list[list] = collection.query(
         query_texts=query,
@@ -167,7 +161,7 @@ async def set_user_message(
 
     await Message.objects.acreate(
         conversation=conversation,
-        message_type="system",
+        message_type=MessageTypeChoices.SYSTEM,
         content="Use the following pieces of context to answer the users question. If you don't know the answer, "
         "just say that you don't know, don't try to make up an answer.",
     )
@@ -184,11 +178,28 @@ async def set_user_message(
 
     await Message.objects.acreate(
         conversation=conversation,
-        message_type="vectordb",
+        message_type=MessageTypeChoices.CONTEXT,
         content=vector_db_response,
     )
 
     await conversation.arefresh_from_db()
+
+    messages = await sync_to_async(conversation.messages.all)()
+
+    messages_list = await sync_to_async(list)(messages)
+
+    # Convert each instance into a serialized schema
+    serialized_messages = [schemas.MessageSchema.from_orm(msg) for msg in messages_list]
+
+    return serialized_messages
+
+
+@router.get("/messages/{room_uuid}")
+async def get_messages(
+    request,
+    room_uuid: str,
+) -> list[schemas.MessageSchema]:
+    conversation = await Conversation.objects.aget(uuid=room_uuid)
 
     messages = await sync_to_async(conversation.messages.all)()
 

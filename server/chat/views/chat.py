@@ -22,15 +22,3 @@ def chat_page(request, room_uuid):
         return redirect("chatroom_list")
 
     return render(request, "chat/chat_and_upload.html", context)
-
-
-# async def chat_streaming(request, room_id):
-#
-#     chat_input = request.GET.get('chat_input', '')
-#     response = StreamingHttpResponse(
-#         streaming_content=get_replicate_stream(chat_input),
-#         content_type="text/event-stream",
-#     )
-#     response["Cache-Control"] = "no-cache"
-#     response["Transfer-Encoding"] = "chunked"
-#     return response

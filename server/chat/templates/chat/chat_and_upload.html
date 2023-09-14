@@ -123,49 +123,53 @@
     function displayMessages(data) {
     chatBox.innerHTML = '';  // Clear the current chat box
 
-    data.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('flex', 'items-start', 'mb-4');
+            data.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('flex', 'items-start', 'mb-4');
 
-        const messageContent = document.createElement('div');
-        messageContent.innerText = msg.content;
+                const messageContent = document.createElement('div');
+                messageContent.innerText = msg.content;
 
-        if (msg.message_type === 'user') {
-            messageContent.classList.add('rounded-lg', 'bg-blue-100', 'inline-block', 'p-4');
-            {#messageDiv.innerHTML += '<span>User: </span>';#}
-        } else if (msg.message_type === 'system') {
-            messageContent.classList.add('rounded-lg', 'bg-red-100', 'inline-block', 'p-4');
-            {#messageDiv.innerHTML += '<span>Prompt: </span>';#}
+                if (msg.message_type === 'USER') {
+                    messageContent.classList.add('rounded-lg', 'bg-blue-100', 'inline-block', 'p-4');
+                    {#messageDiv.innerHTML += '<span>User: </span>';#}
+                } else if (msg.message_type === 'SYSTEM') {
+                    messageContent.classList.add('rounded-lg', 'bg-red-100', 'inline-block', 'p-4');
+                    {#messageDiv.innerHTML += '<span>Prompt: </span>';#}
+                }
+                else if (msg.message_type === 'CONTEXT') {
+                    messageContent.classList.add('rounded-lg', 'bg-orange-300', 'inline-block', 'p-4');
+                    {#messageDiv.innerHTML += '<span>Vectordb: </span>';#}
+                }
+                else if (msg.message_type === 'LLM') {
+                    messageContent.classList.add('rounded-lg', 'bg-gray-300', 'inline-block', 'p-4');
+                    {#messageDiv.innerHTML += '<span>LLM: </span>';#}
+                }
+
+                // You can add more conditions if you have other message types
+
+                messageDiv.appendChild(messageContent);
+                chatBox.appendChild(messageDiv);
+            });
         }
-        else if (msg.message_type === 'vectordb') {
-            messageContent.classList.add('rounded-lg', 'bg-orange-300', 'inline-block', 'p-4');
-            {#messageDiv.innerHTML += '<span>Vectordb: </span>';#}
-        }
-        else if (msg.message_type === 'llm') {
-            messageContent.classList.add('rounded-lg', 'bg-gray-300', 'inline-block', 'p-4');
-            {#messageDiv.innerHTML += '<span>LLM: </span>';#}
-        }
-
-        // You can add more conditions if you have other message types
-
-        messageDiv.appendChild(messageContent);
-        chatBox.appendChild(messageDiv);
-    });
-}
 
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
 
-        // Submit the form when a file is selected
-        {#const fileInput = document.getElementById('fileInput');#}
-        {#const uploadForm = fileInput.closest('form');  // Get the enclosing form#}
-        {##}
-        {#fileInput.addEventListener('change', function() {#}
-        {#    if (fileInput.files.length > 0) {#}
-        {#        // If a file is selected, submit the form directly.#}
-        {#        uploadForm.submit();#}
-        {#    }#}
-        {#});#}
+            // Load initial messages
+            const message_set_response = await fetch(`{% url 'chat-api:get_messages' room_uuid %}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": 'application/json',
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+            });
+
+            if (message_set_response.ok) {
+                const responseData = await message_set_response.json(); // Await the Promise returned by .json()
+                displayMessages(responseData);
+            }
+
 
         // Send a GET request to the get_messages endpoint to obtain messages
         const sendButton = document.getElementById('send-button');
@@ -176,9 +180,10 @@
             const message = document.getElementById('chat-message').value;
 
             const RoleEnum = {
-                USER: 'user',
-                SYSTEM: 'system',
-                CONTEXT: 'context'
+                USER: 'USER',
+                SYSTEM: 'SYSTEM',
+                CONTEXT: 'CONTEXT',
+                LLM: 'LLM',
             };
 
             const message_content = {

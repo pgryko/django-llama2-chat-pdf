@@ -9,6 +9,8 @@ import replicate
 from fastapi import HTTPException
 from chromadb.api.types import Documents as ChromadbDocuments
 
+from .models import Conversation, Message as MessageModel
+from .enums import MessageTypeChoices
 from .schemas import Message
 
 
@@ -47,7 +49,11 @@ async def generate_raw_prompt(
     return "".join(texts)
 
 
-async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
+async def get_replicate_stream(
+    prompt: str, conversation: Conversation = None
+) -> AsyncIterable[str | bytes]:
+    collected_output = []
+
     try:
         # The replicate/llama-2-70b-chat model can stream output as it's running.
         # The predict method returns an iterator, and you can iterate over that output.
@@ -55,7 +61,7 @@ async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
         output: Iterator = replicate.run(
             "replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1",
             input={
-                "prompt": f"[INST] {user_input} [/INST]",
+                "prompt": prompt,
                 "system_prompt": "",
             },
         )
@@ -66,8 +72,18 @@ async def get_replicate_stream(user_input: str) -> AsyncIterable[str | bytes]:
             # next chunk of data. It's worth investigating further if there are other underlying issues,
             # such as buffering in your server or any intermediaries, that might affect real-time streaming.
             # print(item)
+            collected_output.append(item)
             await asyncio.sleep(0.000001)  # Introducing a delay
             yield item
+
+        if conversation is not None:
+            # Save the conversation to the database
+            await MessageModel.objects.acreate(
+                conversation=conversation,
+                message_type=MessageTypeChoices.LLM,
+                content="".join(collected_output),
+            )
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

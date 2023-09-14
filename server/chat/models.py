@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from chat.enums import MessageTypeChoices
 from server.models import TimeStampField
 
 User = get_user_model()
@@ -42,16 +43,10 @@ class DocumentFile(TimeStampField):
 
 
 class Message(TimeStampField):
-    TYPE_CHOICES = (
-        ("SYS", "system"),
-        ("USER", "user"),
-        ("CONTEXT", "vectordb"),
-        ("LLM", "llm"),
-    )
     conversation = models.ForeignKey(
         Conversation, related_name="messages", on_delete=models.CASCADE
     )
-    message_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    message_type = models.CharField(max_length=10, choices=MessageTypeChoices.choices)
     content = models.TextField()
 
     class Meta:

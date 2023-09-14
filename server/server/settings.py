@@ -222,7 +222,7 @@ if SENTRY_DSN:
             SentryProcessor(event_level=logging.ERROR),
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
+        wrapper_class=structlog.stdlib.AsyncBoundLogger,
     )
 
 
