@@ -3,7 +3,7 @@ from django.contrib import admin, messages
 from django.db import transaction
 from django.http import HttpResponseRedirect
 
-from chat.models import ChromaDBCollection, Conversation, Message
+from chat.models import ChromaDBCollection, Conversation, Message, DocumentFile
 from chat.singleton import ChromaDBSingleton
 
 
@@ -122,6 +122,14 @@ class MessageInline(admin.TabularInline):  # or admin.StackedInline if you prefe
     ordering = ("updated_at",)
 
 
+class DocumentFileInline(admin.TabularInline):
+    model = DocumentFile
+    extra = 0  # Number of empty forms to display
+    readonly_fields = ("uuid", "created_at", "updated_at")
+
+    fields = ("uuid", "created_at", "updated_at", "file", "md5")
+
+
 class ConversationAdmin(admin.ModelAdmin):
     list_display = ("uuid", "user", "collection", "created_at", "updated_at")
     search_fields = (
@@ -136,7 +144,7 @@ class ConversationAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    inlines = [MessageInline]
+    inlines = [MessageInline, DocumentFileInline]
 
 
 class MessageAdmin(admin.ModelAdmin):
@@ -164,6 +172,39 @@ class MessageAdmin(admin.ModelAdmin):
     )
 
 
+class DocumentFileAdmin(admin.ModelAdmin):
+    list_display = ("uuid", "created_at", "updated_at", "file", "md5", "conversation")
+    list_filter = ("created_at", "updated_at", "conversation")
+    search_fields = (
+        "uuid",
+        "file",
+        "md5",
+        "conversation__uuid",
+    )  # Replace 'name' with the actual field in the Conversation model
+
+    readonly_fields = ("uuid", "created_at", "updated_at")
+    fieldsets = (
+        (
+            "Document Information",
+            {
+                "fields": (
+                    "uuid",
+                    "created_at",
+                    "updated_at",
+                    "file",
+                    "md5",
+                    "conversation",
+                ),
+            },
+        ),
+    )
+
+    def has_add_permission(self, request):
+        # Disable the ability to add new DocumentFile objects from the admin
+        return False
+
+
 # Register the admin classes with the models
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.register(Message, MessageAdmin)
+admin.site.register(DocumentFile, DocumentFileAdmin)

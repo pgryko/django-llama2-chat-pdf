@@ -19,6 +19,7 @@ logger = get_logger()
 router = Router()
 
 
+# TODO: restrict to superuser
 @router.get("chroma/heartbeat")
 async def chroma_heartbeat(request: HttpRequest) -> int:
     """From chromadb get the current time in nanoseconds since epoch.
@@ -26,6 +27,9 @@ async def chroma_heartbeat(request: HttpRequest) -> int:
     # TODO: add an exponential backoff to this
     client = ChromaDBSingleton().get_client()
     return client.heartbeat()
+
+
+# TODO: restrict to superuser
 
 
 @router.get("chroma/list")
@@ -36,6 +40,9 @@ async def list_collections(request) -> Sequence[Collection]:
         return client.list_collections()
     else:
         raise HttpError(403, message="Only superusers can list collections.")
+
+
+# TODO: restrict to superuser
 
 
 @router.get("/chroma/{collection}")
@@ -62,6 +69,7 @@ async def chroma_get(request, collection: UUID4) -> GetResultMetaNone:
     return chroma_collection.get()
 
 
+# TODO: restrict to superuser
 @router.delete("/chroma/{collection}")
 async def chroma_delete(request, collection: UUID4) -> None:
     """Deletes the contents of the collection"""

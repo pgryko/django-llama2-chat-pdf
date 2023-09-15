@@ -99,3 +99,12 @@ async def test_upload_file(async_authenticated_client):
     assert response_data["md5"] == created_file.md5
 
     assert response_data["name"] == "uploads/entropy.pdf"
+
+    # Attempt to reupload the same file
+    url = reverse("chat-api:upload_file", args=[str(room_uuid)])
+    response = await authenticated_client.post(url, {"file": file}, format="multipart")
+
+    # Validate response status
+    assert response.status_code == 200
+    # No duplicates
+    assert await DocumentFile.objects.acount() == 1

@@ -19,11 +19,6 @@ class ChromaDBCollection(models.Model):
     # Fist 10 items in the collection
     peek = models.JSONField(default=dict)
 
-    # class Meta:
-    #     managed = (
-    #         False  # This ensures Django won't create a database table for this model
-    #     )
-
 
 class Conversation(TimeStampField):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

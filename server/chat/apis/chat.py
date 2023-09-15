@@ -34,6 +34,19 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
     text = services.get_pdf_text(content)
     text_chunks: ChromadbDocuments = services.get_text_chunks(text)
 
+    existing_file = await DocumentFile.objects.filter(
+        md5=md5, conversation=room
+    ).afirst()
+
+    if existing_file:
+        return DocumentFileSchema(
+            created_at=existing_file.created_at,
+            updated_at=existing_file.updated_at,
+            url=existing_file.file.url,
+            md5=existing_file.md5,
+            name=existing_file.file.name,
+        )
+
     collection: ChromaDBCollection = ChromaDBSingleton().get_or_create_collection(
         name=str(room.collection)
     )
