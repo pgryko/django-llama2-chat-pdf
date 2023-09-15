@@ -145,6 +145,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -233,3 +234,6 @@ if DEBUG:
 
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+else:
+    # When serving over https
+    SECURE_HSTS_SECONDS = 3600
