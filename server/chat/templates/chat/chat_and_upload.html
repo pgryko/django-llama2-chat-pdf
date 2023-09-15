@@ -6,6 +6,12 @@
         <title>Chat UI</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+        <style>
+          form.htmx-request {
+            opacity: .5;
+            transition: opacity 300ms linear;
+          }
+        </style>
     </head>
     <body class="bg-gray-200" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <div class="container mx-auto p-4 flex h-screen">
@@ -62,12 +68,14 @@
                 <div class="border-t p-4">
                     <div class="flex items-center">
                         <!-- File Upload -->
-                        <form action="{% url 'chat-api:upload_file' room_uuid %}"
+                        <form id='upload-form'
+                              action="{% url 'chat-api:upload_file' room_uuid %}"
                               method="post"
                               enctype="multipart/form-data"
                               hx-post="{% url 'chat-api:upload_file' room_uuid %}"
                               hx-trigger="change from:#fileInput"
-                              hx-swap="none">
+                              hx-swap="none"
+                              hx-on="htmx:beforeRequest(uploadStart); htmx:afterRequest(uploadEnd)">
                             <!-- CSRF token for Django forms -->
                             {% csrf_token %}
                             <label class="flex items-center px-4 py-2 bg-gray-200 text-blue-500 rounded-lg tracking-wide uppercase cursor-pointer hover:bg-blue-500 hover:text-white">
@@ -80,28 +88,30 @@
                                     <path d="M5 10a1 1 0 010-2h10a1 1 0 010 2H5z"></path>
                                 </svg>
                                 <span class="mt-2 text-base leading-normal">Select a file</span>
+                                <span id="uploadingIndicator"
+                                      class="hidden mt-2 text-base leading-normal ml-2">Uploading...</span>
                                 <input type="file" name="file" class="hidden" id="fileInput">
                             </label>
                             <input type="submit" value="Upload" style="display: none;">
                         </form>
-                        <!-- List of uploaded files -->
-                        <div class="ml-4 flex flex-col">
-                            <p class="text-base leading-normal mb-2">Uploaded Files:</p>
-                            <ul>
-                                {% for file in uploaded_files %}
-                                    <li class="flex justify-between items-center mb-1">
-                                        <span>{{ file.file_name }}</span>
-                                        <form method="post" action="{% url 'file_delete' file.file_id %}">
-                                            {% csrf_token %}
-                                            <button type="submit"
-                                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                        {#                        <!-- List of uploaded files -->#}
+                        {#                        <div class="ml-4 flex flex-col">#}
+                        {#                            <p class="text-base leading-normal mb-2">Uploaded Files:</p>#}
+                        {#                            <ul>#}
+                        {#                                {% for file in uploaded_files %}#}
+                        {#                                    <li class="flex justify-between items-center mb-1">#}
+                        {#                                        <span>{{ file.file_name }}</span>#}
+                        {#                                        <form method="post" action="{% url 'file_delete' file.file_id %}">#}
+                        {#                                            {% csrf_token %}#}
+                        {#                                            <button type="submit"#}
+                        {#                                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">#}
+                        {#                                                Delete#}
+                        {#                                            </button>#}
+                        {#                                        </form>#}
+                        {#                                    </li>#}
+                        {#                                {% endfor %}#}
+                        {#                            </ul>#}
+                        {#                        </div>#}
                         <!-- Message Input -->
                         <input type="text"
                                class="flex-1 ml-4 p-2 rounded border"
@@ -120,6 +130,26 @@
         const setMessagesURIFromDjango = "{% url 'chat-api:set_user_message' room_uuid %}";
         const getStreamResponseURIFromDjango = "{% url 'chat-api:get_stream_chat' room_uuid %}";
         const csrfTokenFromDjango = "{{ csrf_token }}";
+
+        document.body.addEventListener('htmx:beforeRequest', function(event) {
+            uploadStart();
+        });
+
+        document.body.addEventListener('htmx:afterRequest', function(event) {
+            uploadEnd();
+        });
+
+        function uploadStart() {
+            console.log('upload started')
+        document.getElementById('fileInput').disabled = true;
+        document.getElementById('uploadingIndicator').classList.remove('hidden');
+        }
+
+        function uploadEnd() {
+            console.log('upload ended')
+            document.getElementById('fileInput').disabled = false;
+            document.getElementById('uploadingIndicator').classList.add('hidden');
+        }
 
         </script>
         <script src="{% static 'chat/js/chat.js' %}"></script>
