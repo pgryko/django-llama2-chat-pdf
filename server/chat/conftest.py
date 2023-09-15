@@ -24,9 +24,12 @@ def authenticated_client(test_user):
 
 @pytest.fixture
 async def async_test_user():
-    return await User.objects.acreate(
-        username="testuser", email="test@test.com", password="testpassword"
+    user, _ = await User.objects.aupdate_or_create(
+        defaults={"email": "test@test.com", "username": "testuser"},
+        password="testpassword",
     )
+
+    return user
 
 
 @pytest.fixture

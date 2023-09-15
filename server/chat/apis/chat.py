@@ -25,7 +25,7 @@ logger = get_logger()
 router = Router()
 
 
-@router.post("/upload/{room_uuid}", response=DocumentFileSchema)
+@router.post("/upload/{room_uuid}", response=List[DocumentFileSchema])
 async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...)):
     room = await aget_object_or_404(Conversation, uuid=room_uuid)
 
@@ -58,17 +58,65 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
         metadatas=[{"md5": md5} for _ in range(len(text_chunks))],
     )
 
-    created_file = await DocumentFile.objects.acreate(
-        file=file, md5=md5, conversation=room
+    await DocumentFile.objects.acreate(file=file, md5=md5, conversation=room)
+
+    files = await sync_to_async(list)(
+        DocumentFile.objects.filter(conversation__uuid=room_uuid).all()
     )
 
-    return DocumentFileSchema(
-        created_at=created_file.created_at,
-        updated_at=created_file.updated_at,
-        url=created_file.file.url,
-        md5=created_file.md5,
-        name=created_file.file.name,
+    return [
+        DocumentFileSchema(
+            created_at=file.created_at,
+            updated_at=file.updated_at,
+            url=file.file.url,
+            md5=file.md5,
+            name=file.file.name,
+        )
+        for file in files
+    ]
+
+
+@router.get("/files/{room_uuid}", response=List[DocumentFileSchema])
+async def get_files(request, room_uuid: UUID4):
+    await aget_object_or_404(Conversation, uuid=room_uuid)
+
+    files = await sync_to_async(list)(
+        DocumentFile.objects.filter(conversation__uuid=room_uuid).all()
     )
+
+    return [
+        DocumentFileSchema(
+            created_at=file.created_at,
+            updated_at=file.updated_at,
+            url=file.file.url,
+            md5=file.md5,
+            name=file.file.name,
+        )
+        for file in files
+    ]
+
+
+@router.delete("/file/{room_uuid}/{file_uuid}", response=List[DocumentFileSchema])
+async def delete_files(request, room_uuid: UUID4, file_uuid: UUID4):
+    document_file = await aget_object_or_404(
+        DocumentFile, conversation__uuid=room_uuid, uuid=file_uuid
+    )
+    await document_file.adelete()
+
+    files = await sync_to_async(list)(
+        DocumentFile.objects.filter(conversation__uuid=room_uuid).all()
+    )
+
+    return [
+        DocumentFileSchema(
+            created_at=file.created_at,
+            updated_at=file.updated_at,
+            url=file.file.url,
+            md5=file.md5,
+            name=file.file.name,
+        )
+        for file in files
+    ]
 
 
 # for Nginx proxy_buffering off;

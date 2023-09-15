@@ -30,8 +30,6 @@ async def chroma_heartbeat(request: HttpRequest) -> int:
 
 
 # TODO: restrict to superuser
-
-
 @router.get("chroma/list")
 async def list_collections(request) -> Sequence[Collection]:
     """Return a list of all collections."""
@@ -43,8 +41,6 @@ async def list_collections(request) -> Sequence[Collection]:
 
 
 # TODO: restrict to superuser
-
-
 @router.get("/chroma/{collection}")
 async def chroma_get(request, collection: UUID4) -> GetResultMetaNone:
     # Ensure user has access
