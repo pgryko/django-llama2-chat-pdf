@@ -2,6 +2,8 @@ import asyncio
 import hashlib
 from typing import AsyncIterable, BinaryIO, Union, Iterator
 
+from asgiref.sync import sync_to_async
+from ninja import UploadedFile
 from pypdf import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 import io
@@ -9,10 +11,15 @@ import replicate
 from fastapi import HTTPException
 from chromadb.api.types import Documents as ChromadbDocuments
 
-from .models import Conversation, Message as MessageModel
+from .models import (
+    Conversation,
+    Message as MessageModel,
+    DocumentFile,
+    ChromaDBCollection,
+)
 from .enums import MessageTypeChoices
 from .schemas import Message
-
+from .singleton import ChromaDBSingleton
 
 SYSTEM_PROMPT = """System: Use the following pieces of context to answer the users question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer."""
@@ -169,3 +176,51 @@ def compute_md5(data: Union[bytes, BinaryIO]) -> str:
         data.seek(0)
 
     return md5.hexdigest()
+
+
+def delete_conversation(conversation: Conversation):
+    client = ChromaDBSingleton().get_client()
+    try:
+        chroma_collection = client.get_collection(name=conversation.collection)
+        chroma_collection.delete()
+    except ValueError:
+        pass
+
+    conversation.delete()
+
+
+async def async_delete_conversation(conversation: Conversation):
+    await sync_to_async(delete_conversation)(conversation)
+
+
+def add_unique_document(
+    file: Union[BinaryIO, UploadedFile], conversation: Conversation
+):
+    """Add a new document to a conversation and a vector db collection.
+    If an existing one exists, return it instead.
+    """
+    content: bytes = file.read()
+    md5 = compute_md5(content)
+    text = get_pdf_text(content)
+
+    existing_file = DocumentFile.objects.filter(
+        md5=md5, conversation=conversation
+    ).first()
+
+    if existing_file:
+        return existing_file
+
+    collection: ChromaDBCollection = ChromaDBSingleton().get_or_create_collection(
+        name=str(conversation.collection)
+    )
+
+    text_chunks: ChromadbDocuments = get_text_chunks(text)
+
+    # Append the md5 to the id to add pseudo uniqueness to uploaded documents.
+    collection.add(
+        documents=text_chunks,
+        ids=[md5 + str(i) for i in range(len(text_chunks))],
+        metadatas=[{"md5": md5} for _ in range(len(text_chunks))],
+    )
+
+    return DocumentFile.objects.create(file=file, md5=md5, conversation=conversation)

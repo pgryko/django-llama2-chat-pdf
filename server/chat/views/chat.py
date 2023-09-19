@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from chat.models import Conversation
+from chat.models import Conversation, DocumentFile
 
 
 @login_required
@@ -16,7 +16,16 @@ def chat_page(request, room_uuid):
         .annotate(message_count=Count("messages"))
         .order_by(sort_by)
     )
-    context = {"room_uuid": room_uuid, "conversations": conversations}
+
+    files = DocumentFile.objects.filter(
+        conversation__user=user, conversation__uuid=room_uuid
+    ).order_by(sort_by)
+
+    context = {
+        "room_uuid": room_uuid,
+        "conversations": conversations,
+        "files": files,
+    }
 
     if conversations.filter(uuid=room_uuid).exists() is False:
         return redirect("chatroom_list")

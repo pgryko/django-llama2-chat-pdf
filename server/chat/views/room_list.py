@@ -4,14 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.shortcuts import redirect, render
 from chat.models import Conversation
+from chat.services import async_delete_conversation
 
 
 @login_required
-def chatroom_delete(request, chatroom_uuid):
+async def chatroom_delete(request, chatroom_uuid):
     if request.method == "POST":
         try:
-            chatroom = Conversation.objects.get(uuid=chatroom_uuid, user=request.user)
-            chatroom.delete()
+            conversation = Conversation.objects.get(
+                uuid=chatroom_uuid, user=request.user
+            )
+            await async_delete_conversation(conversation=conversation)
         except Conversation.DoesNotExist:
             pass  # Optionally, you can handle this case as needed.
         # Trigger a reload of the current page
@@ -51,3 +54,19 @@ def chatroom_list(request):
             "is_sorted_by_newest": is_sorted_by_newest,
         },
     )
+
+
+@login_required
+async def file_delete(request, chatroom_uuid):
+    if request.method == "POST":
+        try:
+            conversation = Conversation.objects.get(
+                uuid=chatroom_uuid, user=request.user
+            )
+            await async_delete_conversation(conversation=conversation)
+        except Conversation.DoesNotExist:
+            pass  # Optionally, you can handle this case as needed.
+        # Trigger a reload of the current page
+        return redirect(
+            request.META.get("HTTP_REFERER", "redirect_if_referer_not_found")
+        )

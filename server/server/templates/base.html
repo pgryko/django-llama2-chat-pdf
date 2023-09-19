@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -5,8 +6,10 @@
         <title>
             {% block title %}Chat with PDF{% endblock %}
         </title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+        <script src="{% static 'chat/vendor/js/cdn.tailwindcss.com_3.3.3.min.js' %}"></script>
+        <script src="{% static 'chat/vendor/js/unpkg.com_htmx.org@1.9.5_dist_htmx.min.js' %}"></script>
+        {#        <script src="https://cdn.tailwindcss.com"></script>#}
+        {#        <script src="https://unpkg.com/htmx.org@1.9.5"></script>#}
     </head>
     <body>
         <div id="content">

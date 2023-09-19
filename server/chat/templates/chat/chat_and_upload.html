@@ -4,8 +4,10 @@
     <head>
         <meta charset="UTF-8">
         <title>Chat UI</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+        <script src="{% static 'chat/vendor/js/cdn.tailwindcss.com_3.3.3.min.js' %}"></script>
+        <script src="{% static 'chat/vendor/js/unpkg.com_htmx.org@1.9.5_dist_htmx.min.js' %}"></script>
+        {#        <script src="https://cdn.tailwindcss.com"></script>#}
+        {#        <script src="https://unpkg.com/htmx.org@1.9.5"></script>#}
         <style>
           form.htmx-request {
             opacity: .5;
@@ -20,29 +22,47 @@
                  style="max-height: calc(100vh - 2rem)">
                 <h1 class="text-lg font-semibold mb-4">Chat Rooms</h1>
                 <ul class="space-y-4">
-                    {% for conversation in conversations %}
-                        <li class="p-4 bg-gray-100 rounded-lg shadow hover:bg-gray-200">
-                            <a href="{% url 'chat_room' conversation.uuid %}"
-                               class="flex justify-between items-center w-full p-2 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="ml-4 text-gray-700">
-                                        <p class="text-s font-medium">
-                                            <span class="text-gray-500">Conversation ID:</span>
-                                            {{ conversation.uuid }}
-                                        </p>
-                                        <p class="text-xs text-gray-400">{{ conversation.updated_at }}</p>
-                                    </div>
-                                </div>
-                                <form method="post" action="{% url 'chatroom_delete' conversation.uuid %}">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">
-                                        X
-                                    </button>
-                                </form>
-                            </a>
-                        </li>
-                    {% endfor %}
+                    {#                                                <!-- List of uploaded files -->#}
+                    {#                                                <div class="ml-4 flex flex-col">#}
+                    {#                                                    <p class="text-base leading-normal mb-2">Uploaded Files:</p>#}
+                    {#                                                    <ul>#}
+                    {#                                                        {% for file in files %}#}
+                    {#                                                            <li class="flex justify-between items-center mb-1">#}
+                    {#                                                                <span>{{ file.file_name }}</span>#}
+                    {#                                                                <form method="post" action="{% url 'file_delete' file.file_id %}">#}
+                    {#                                                                    {% csrf_token %}#}
+                    {#                                                                    <button type="submit"#}
+                    {#                                                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">#}
+                    {#                                                                        Delete#}
+                    {#                                                                    </button>#}
+                    {#                                                                </form>#}
+                    {#                                                            </li>#}
+                    {#                                                        {% endfor %}#}
+                    {#                                                    </ul>#}
+                    {#                                                </div>#}
+                    {#                    {% for conversation in conversations %}#}
+                    {#                        <li class="p-4 bg-gray-100 rounded-lg shadow hover:bg-gray-200">#}
+                    {#                            <a href="{% url 'chat_room' conversation.uuid %}"#}
+                    {#                               class="flex justify-between items-center w-full p-2 rounded-lg">#}
+                    {#                                <div class="flex items-center">#}
+                    {#                                    <div class="ml-4 text-gray-700">#}
+                    {#                                        <p class="text-s font-medium">#}
+                    {#                                            <span class="text-gray-500">Conversation ID:</span>#}
+                    {#                                            {{ conversation.uuid }}#}
+                    {#                                        </p>#}
+                    {#                                        <p class="text-xs text-gray-400">{{ conversation.updated_at }}</p>#}
+                    {#                                    </div>#}
+                    {#                                </div>#}
+                    {#                                <form method="post" action="{% url 'chatroom_delete' conversation.uuid %}">#}
+                    {#                                    {% csrf_token %}#}
+                    {#                                    <button type="submit"#}
+                    {#                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">#}
+                    {#                                        X#}
+                    {#                                    </button>#}
+                    {#                                </form>#}
+                    {#                            </a>#}
+                    {#                        </li>#}
+                    {#                    {% endfor %}#}
                 </ul>
                 <form method="post" action="{% url 'chatroom_create' %}">
                     {% csrf_token %}
@@ -94,24 +114,6 @@
                             </label>
                             <input type="submit" value="Upload" style="display: none;">
                         </form>
-                        {#                        <!-- List of uploaded files -->#}
-                        {#                        <div class="ml-4 flex flex-col">#}
-                        {#                            <p class="text-base leading-normal mb-2">Uploaded Files:</p>#}
-                        {#                            <ul>#}
-                        {#                                {% for file in uploaded_files %}#}
-                        {#                                    <li class="flex justify-between items-center mb-1">#}
-                        {#                                        <span>{{ file.file_name }}</span>#}
-                        {#                                        <form method="post" action="{% url 'file_delete' file.file_id %}">#}
-                        {#                                            {% csrf_token %}#}
-                        {#                                            <button type="submit"#}
-                        {#                                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">#}
-                        {#                                                Delete#}
-                        {#                                            </button>#}
-                        {#                                        </form>#}
-                        {#                                    </li>#}
-                        {#                                {% endfor %}#}
-                        {#                            </ul>#}
-                        {#                        </div>#}
                         <!-- Message Input -->
                         <input type="text"
                                class="flex-1 ml-4 p-2 rounded border"

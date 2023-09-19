@@ -14,8 +14,6 @@ from chat.models import Conversation, Message, DocumentFile
 from chat.enums import MessageTypeChoices
 from chat import schemas
 from chat.schemas import DocumentFileSchema
-from chromadb.api.types import Documents as ChromadbDocuments
-from chromadb.api.models import Collection as ChromaDBCollection
 
 from chat.singleton import ChromaDBSingleton
 from server.utils import aget_object_or_404
@@ -29,36 +27,7 @@ router = Router()
 async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...)):
     room = await aget_object_or_404(Conversation, uuid=room_uuid)
 
-    content: bytes = file.read()
-    md5 = services.compute_md5(content)
-    text = services.get_pdf_text(content)
-    text_chunks: ChromadbDocuments = services.get_text_chunks(text)
-
-    existing_file = await DocumentFile.objects.filter(
-        md5=md5, conversation=room
-    ).afirst()
-
-    if existing_file:
-        return DocumentFileSchema(
-            created_at=existing_file.created_at,
-            updated_at=existing_file.updated_at,
-            url=existing_file.file.url,
-            md5=existing_file.md5,
-            name=existing_file.file.name,
-        )
-
-    collection: ChromaDBCollection = ChromaDBSingleton().get_or_create_collection(
-        name=str(room.collection)
-    )
-
-    # Append the md5 to the id to add pseudo uniqueness to uploaded documents.
-    collection.add(
-        documents=text_chunks,
-        ids=[md5 + str(i) for i in range(len(text_chunks))],
-        metadatas=[{"md5": md5} for _ in range(len(text_chunks))],
-    )
-
-    await DocumentFile.objects.acreate(file=file, md5=md5, conversation=room)
+    await sync_to_async(services.add_unique_document)(file=file, conversation=room)
 
     files = await sync_to_async(list)(
         DocumentFile.objects.filter(conversation__uuid=room_uuid).all()
@@ -218,7 +187,7 @@ async def set_user_message(
 
     conversation = await Conversation.objects.aget(uuid=room_uuid)
 
-    await conversation.messages.all().adelete()
+    # await conversation.messages.all().adelete()
 
     await Message.objects.acreate(
         conversation=conversation,

@@ -3,7 +3,6 @@ import json
 import pytest
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.test.client import AsyncClient
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -15,7 +14,6 @@ from uuid import uuid4
 
 
 from accounts.models import AccountUser
-from chat.models import Conversation
 from chat.tests.data import DATA_PATH
 
 pytestmark = pytest.mark.django_db()
@@ -95,12 +93,18 @@ async def test_upload_file(async_authenticated_client):
     response_data = response.json()
 
     # Validate response data
-    assert response_data["url"] == created_file.file.url
-    assert response_data["md5"] == created_file.md5
+    assert response_data[0]["url"] == created_file.file.url
+    assert response_data[0]["md5"] == created_file.md5
 
-    assert response_data["name"] == "uploads/entropy.pdf"
+    assert "entropy" in response_data[0]["name"]
 
     # Attempt to reupload the same file
+    file = SimpleUploadedFile(
+        name="entropy.pdf",
+        content=file_path.read_bytes(),
+        content_type="application/octet-stream",
+    )
+
     url = reverse("chat-api:upload_file", args=[str(room_uuid)])
     response = await authenticated_client.post(url, {"file": file}, format="multipart")
 
