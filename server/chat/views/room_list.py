@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.shortcuts import redirect, render
-from chat.models import Conversation
+from chat.models import Conversation, DocumentFile
 from chat.services import async_delete_conversation
 
 
@@ -11,7 +11,7 @@ from chat.services import async_delete_conversation
 async def chatroom_delete(request, chatroom_uuid):
     if request.method == "POST":
         try:
-            conversation = Conversation.objects.get(
+            conversation = Conversation.objects.aget(
                 uuid=chatroom_uuid, user=request.user
             )
             await async_delete_conversation(conversation=conversation)
@@ -57,12 +57,32 @@ def chatroom_list(request):
 
 
 @login_required
-async def file_delete(request, chatroom_uuid):
+def files_list(request, chatroom_uuid):
+    user = request.user
+    sort_by = request.GET.get("sort_by", "-updated_at")
+
+    files = DocumentFile.objects.filter(
+        conversation__user=user, conversation__uuid=chatroom_uuid
+    ).order_by(sort_by)
+
+    is_sorted_by_newest = True if sort_by == "-updated_at" else False
+
+    return render(
+        request,
+        "chat/chatroom_list.html",
+        {
+            "files": files,
+            "sort_by": sort_by,
+            "is_sorted_by_newest": is_sorted_by_newest,
+        },
+    )
+
+
+@login_required
+async def file_delete(request, chatroom_uuid, file_uuid):
     if request.method == "POST":
         try:
-            conversation = Conversation.objects.get(
-                uuid=chatroom_uuid, user=request.user
-            )
+            DocumentFile.objects.aget(uuid=file_uuid, conversation__user=request.user)
             await async_delete_conversation(conversation=conversation)
         except Conversation.DoesNotExist:
             pass  # Optionally, you can handle this case as needed.

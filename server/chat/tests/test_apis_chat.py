@@ -59,11 +59,7 @@ async def test_set_user_message():
     # assert created_message.content == message_data["content"]
 
 
-# Skip for a couple of reasons:
-# 1. Test runs very slowly due to using an embedding via CPU
-# 2. ChromaDb is not properly configured for testing, i.e. proper teardown of the database
-# 3. We will likely swap out ChromaDb for milvus and use a hosted embedding service (via vllm?)
-@pytest.mark.skip(reason="Test too slow")
+# This test calls an embedding function and might fail or take too long
 @pytest.mark.asyncio
 async def test_upload_file(async_authenticated_client):
     authenticated_client, user = await async_authenticated_client
@@ -72,10 +68,10 @@ async def test_upload_file(async_authenticated_client):
     room_uuid = uuid4()
     await Conversation.objects.acreate(uuid=room_uuid, user=user)
 
-    file_path = DATA_PATH / "entropy.pdf"
+    file_path = DATA_PATH / "two_lines_example.pdf"
 
     file = SimpleUploadedFile(
-        name="entropy.pdf",
+        name="two_lines_example.pdf",
         content=file_path.read_bytes(),
         content_type="application/octet-stream",
     )
@@ -96,11 +92,11 @@ async def test_upload_file(async_authenticated_client):
     assert response_data[0]["url"] == created_file.file.url
     assert response_data[0]["md5"] == created_file.md5
 
-    assert "entropy" in response_data[0]["name"]
+    assert "two_lines_example" in response_data[0]["name"]
 
     # Attempt to reupload the same file
     file = SimpleUploadedFile(
-        name="entropy.pdf",
+        name="two_lines_example.pdf",
         content=file_path.read_bytes(),
         content_type="application/octet-stream",
     )

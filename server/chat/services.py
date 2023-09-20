@@ -224,3 +224,16 @@ def add_unique_document(
     )
 
     return DocumentFile.objects.create(file=file, md5=md5, conversation=conversation)
+
+
+def delete_document(document_file: DocumentFile):
+    client = ChromaDBSingleton().get_client()
+    try:
+        chroma_collection = client.get_collection(
+            name=document_file.conversation.collection
+        )
+        chroma_collection.delete()
+    except ValueError:
+        pass
+
+    document_file.delete()
