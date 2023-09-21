@@ -8,7 +8,7 @@ I have django ninja REST API endpoints, which can be extended to work with a rea
 ```shell
 poetry install
 poetry shell
-python -m uvicorn server.asgi:application --lifespan off --reload --reload-include "*.html"
+python -m uvicorn server.asgi:application --lifespan off --reload --reload-include "*.html" --workers 4
 ```
 
 ```bash
@@ -43,6 +43,6 @@ $ gitlab-runner exec docker test\ python
 For running in production
 
 ```shell
-python -m gunicorn server.asgi:application -k server.asgi.DjangoUvicornWorker
+python -m gunicorn server.asgi:application -k server.asgi.DjangoUvicornWorker -w 4
 ```
 

@@ -100,7 +100,7 @@ async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
         Message.objects.filter(
             conversation__uuid=room_uuid, message_type=MessageTypeChoices.USER
         )
-        .order_by("created_at")
+        .order_by("-created_at")
         .afirst()
     )
 
@@ -108,7 +108,7 @@ async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
         Message.objects.filter(
             conversation__uuid=room_uuid, message_type=MessageTypeChoices.SYSTEM
         )
-        .order_by("created_at")
+        .order_by("-created_at")
         .afirst()
     )
 
@@ -116,7 +116,7 @@ async def get_stream_chat(request, room_uuid: UUID4) -> StreamingHttpResponse:
         Message.objects.filter(
             conversation__uuid=room_uuid, message_type=MessageTypeChoices.CONTEXT
         )
-        .order_by("created_at")
+        .order_by("-created_at")
         .afirst()
     )
 

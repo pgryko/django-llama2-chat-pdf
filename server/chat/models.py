@@ -31,10 +31,19 @@ class Conversation(TimeStampField):
 class DocumentFile(TimeStampField):
     file = models.FileField(upload_to="uploads/")
     md5 = models.CharField(max_length=32, blank=True, null=True)
+    original_name = models.CharField(max_length=255, blank=True, null=True)
 
     conversation = models.ForeignKey(
         Conversation, related_name="documentfiles", on_delete=models.CASCADE
     )
+
+    def delete(self, *args, **kwargs):
+        # Delete the file before removing the model instance
+        storage, path = self.file.storage, self.file.path
+        storage.delete(path)
+
+        # Call the superclass' delete method to remove the model instance
+        super(DocumentFile, self).delete(*args, **kwargs)
 
 
 class Message(TimeStampField):

@@ -2,19 +2,43 @@ import uuid
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from django.shortcuts import redirect, render
+from django import forms
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import redirect, render, get_object_or_404
+from pydantic import UUID4
+
+from chat import services
 from chat.models import Conversation, DocumentFile
-from chat.services import async_delete_conversation
+from chat.services import (
+    delete_document,
+    delete_conversation,
+)
+
+
+# @login_required
+# async def chatroom_delete(request, chatroom_uuid):
+#     if request.method == "POST":
+#         try:
+#             conversation = Conversation.objects.aget(
+#                 uuid=chatroom_uuid, user=request.user
+#             )
+#             await async_delete_conversation(conversation=conversation)
+#         except Conversation.DoesNotExist:
+#             pass  # Optionally, you can handle this case as needed.
+#         # Trigger a reload of the current page
+#         return redirect(
+#             request.META.get("HTTP_REFERER", "redirect_if_referer_not_found")
+#         )
 
 
 @login_required
-async def chatroom_delete(request, chatroom_uuid):
+def chatroom_delete(request, chatroom_uuid):
     if request.method == "POST":
         try:
-            conversation = Conversation.objects.aget(
+            conversation = Conversation.objects.get(
                 uuid=chatroom_uuid, user=request.user
             )
-            await async_delete_conversation(conversation=conversation)
+            delete_conversation(conversation=conversation)
         except Conversation.DoesNotExist:
             pass  # Optionally, you can handle this case as needed.
         # Trigger a reload of the current page
@@ -79,14 +103,38 @@ def files_list(request, chatroom_uuid):
 
 
 @login_required
-async def file_delete(request, chatroom_uuid, file_uuid):
+def file_delete(request, chatroom_uuid, file_uuid):
+    conversation = get_object_or_404(
+        Conversation, uuid=chatroom_uuid, user=request.user
+    )
+
     if request.method == "POST":
-        try:
-            DocumentFile.objects.aget(uuid=file_uuid, conversation__user=request.user)
-            await async_delete_conversation(conversation=conversation)
-        except Conversation.DoesNotExist:
-            pass  # Optionally, you can handle this case as needed.
-        # Trigger a reload of the current page
+        file = get_object_or_404(
+            DocumentFile, uuid=file_uuid, conversation=conversation
+        )
+
+        delete_document(file)
+
         return redirect(
             request.META.get("HTTP_REFERER", "redirect_if_referer_not_found")
         )
+
+    return HttpResponseNotAllowed(["POST"])
+
+
+class FileUploadForm(forms.ModelForm):
+    class Meta:
+        model = DocumentFile
+        fields = ["file"]
+
+
+@login_required
+def upload_file(request, chatroom_uuid: UUID4):
+    room = get_object_or_404(Conversation, uuid=chatroom_uuid)
+
+    if request.method == "POST":
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            services.add_unique_document(file=form.files["file"], conversation=room)
+
+    return redirect(request.META.get("HTTP_REFERER", "redirect_if_referer_not_found"))

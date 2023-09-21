@@ -10,6 +10,17 @@ urlpatterns = [
         name="chatroom_delete",
     ),
     path("room/create/", room_list_views.chatroom_create, name="chatroom_create"),
+    path("files/<uuid:chatroom_uuid>/", room_list_views.files_list, name="files_list"),
+    path(
+        "file/delete/<uuid:chatroom_uuid>/<uuid:file_uuid>",
+        room_list_views.file_delete,
+        name="file_delete",
+    ),
+    path(
+        "files/upload/<uuid:chatroom_uuid>/",
+        room_list_views.upload_file,
+        name="upload_file",
+    ),
     # path('streaming/<uuid:room_id>/', views.chat_streaming, name='chat_streaming'),
     # ... (Your other URL patterns for chat and upload, updated to handle room UUIDs)
 ]

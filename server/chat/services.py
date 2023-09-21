@@ -21,6 +21,10 @@ from .enums import MessageTypeChoices
 from .schemas import Message
 from .singleton import ChromaDBSingleton
 
+import structlog
+
+logger = structlog.get_logger()
+
 SYSTEM_PROMPT = """System: Use the following pieces of context to answer the users question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer."""
 
@@ -181,10 +185,9 @@ def compute_md5(data: Union[bytes, BinaryIO]) -> str:
 def delete_conversation(conversation: Conversation):
     client = ChromaDBSingleton().get_client()
     try:
-        chroma_collection = client.get_collection(name=conversation.collection)
-        chroma_collection.delete()
-    except ValueError:
-        pass
+        client.delete_collection(name=str(conversation.collection))
+    except Exception as e:
+        logger.error("Error deleting collection from ChromaDB", error=str(e))
 
     conversation.delete()
 
@@ -202,6 +205,12 @@ def add_unique_document(
     content: bytes = file.read()
     md5 = compute_md5(content)
     text = get_pdf_text(content)
+
+    if file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=400,
+            detail="Only PDF files are supported.",
+        )
 
     existing_file = DocumentFile.objects.filter(
         md5=md5, conversation=conversation
@@ -223,17 +232,19 @@ def add_unique_document(
         metadatas=[{"md5": md5} for _ in range(len(text_chunks))],
     )
 
-    return DocumentFile.objects.create(file=file, md5=md5, conversation=conversation)
+    return DocumentFile.objects.create(
+        file=file, md5=md5, conversation=conversation, original_name=file.name
+    )
 
 
 def delete_document(document_file: DocumentFile):
     client = ChromaDBSingleton().get_client()
     try:
         chroma_collection = client.get_collection(
-            name=document_file.conversation.collection
+            name=str(document_file.conversation.collection)
         )
-        chroma_collection.delete()
-    except ValueError:
-        pass
+        chroma_collection.delete(where={"md5": document_file.md5})
+    except Exception as e:
+        logger.error("Error deleting document from ChromaDB", error=str(e))
 
     document_file.delete()

@@ -63,7 +63,6 @@ async def test_set_user_message():
 @pytest.mark.asyncio
 async def test_upload_file(async_authenticated_client):
     authenticated_client, user = await async_authenticated_client
-
     # Setup
     room_uuid = uuid4()
     await Conversation.objects.acreate(uuid=room_uuid, user=user)

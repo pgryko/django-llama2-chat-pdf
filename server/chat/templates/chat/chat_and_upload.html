@@ -17,116 +17,100 @@
     </head>
     <body class="bg-gray-200" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <div class="container mx-auto p-4 flex h-screen">
-            <!-- Sidebar for Chat Rooms -->
+            <!-- Sidebar for Uploaded files -->
             <div class="w-1/4 bg-white p-4 shadow-lg overflow-y-auto"
                  style="max-height: calc(100vh - 2rem)">
-                <h1 class="text-lg font-semibold mb-4">Chat Rooms</h1>
-                <ul class="space-y-4">
-                    {#                                                <!-- List of uploaded files -->#}
-                    {#                                                <div class="ml-4 flex flex-col">#}
-                    {#                                                    <p class="text-base leading-normal mb-2">Uploaded Files:</p>#}
-                    {#                                                    <ul>#}
-                    {#                                                        {% for file in files %}#}
-                    {#                                                            <li class="flex justify-between items-center mb-1">#}
-                    {#                                                                <span>{{ file.file_name }}</span>#}
-                    {#                                                                <form method="post" action="{% url 'file_delete' file.file_id %}">#}
-                    {#                                                                    {% csrf_token %}#}
-                    {#                                                                    <button type="submit"#}
-                    {#                                                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">#}
-                    {#                                                                        Delete#}
-                    {#                                                                    </button>#}
-                    {#                                                                </form>#}
-                    {#                                                            </li>#}
-                    {#                                                        {% endfor %}#}
-                    {#                                                    </ul>#}
-                    {#                                                </div>#}
-                    {#                    {% for conversation in conversations %}#}
-                    {#                        <li class="p-4 bg-gray-100 rounded-lg shadow hover:bg-gray-200">#}
-                    {#                            <a href="{% url 'chat_room' conversation.uuid %}"#}
-                    {#                               class="flex justify-between items-center w-full p-2 rounded-lg">#}
-                    {#                                <div class="flex items-center">#}
-                    {#                                    <div class="ml-4 text-gray-700">#}
-                    {#                                        <p class="text-s font-medium">#}
-                    {#                                            <span class="text-gray-500">Conversation ID:</span>#}
-                    {#                                            {{ conversation.uuid }}#}
-                    {#                                        </p>#}
-                    {#                                        <p class="text-xs text-gray-400">{{ conversation.updated_at }}</p>#}
-                    {#                                    </div>#}
-                    {#                                </div>#}
-                    {#                                <form method="post" action="{% url 'chatroom_delete' conversation.uuid %}">#}
-                    {#                                    {% csrf_token %}#}
-                    {#                                    <button type="submit"#}
-                    {#                                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">#}
-                    {#                                        X#}
-                    {#                                    </button>#}
-                    {#                                </form>#}
-                    {#                            </a>#}
-                    {#                        </li>#}
-                    {#                    {% endfor %}#}
-                </ul>
-                <form method="post" action="{% url 'chatroom_create' %}">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="mt-4 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        Create Room
-                    </button>
-                </form>
-            </div>
-            <!-- Chat Area -->
-            <div class="w-3/4 bg-white p-4 shadow-lg flex flex-col">
-                <!-- Messages -->
-                <h1 class="text-2xl font-semibold mb-4">Chat Room: {{ room_uuid }}</h1>
-                <div class="flex-1 overflow-y-auto">
-                    <div id="chat-box">
-                        <!-- Chat messages will appear here -->
+                <!-- Back Button -->
+                <a href="{% url 'chatroom_list' %}">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded focus:outline-none mb-4">Go Back</button>
+                </a>
+                <h1 class="text-lg font-semibold mb-4">Uploaded Files</h1>
+                {% for file in files %}
+                    <div class="p-4 bg-gray-100 rounded-lg shadow hover:bg-gray-200">
+                        {# TODO: Do nothing for now, later redirect to file info page #}
+                        <a href="{% url 'chat_room' room_uuid %}"
+                           class="flex justify-between items-center w-full p-2 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="ml-4 text-gray-700">
+                                    <p class="text-s font-medium">
+                                        <span class="text-gray-500">File Name:</span>
+                                        {{ file.original_name }}
+                                    </p>
+                                    <p class="text-s font-small">
+                                        <span class="text-gray-500">File ID:</span>
+                                        {{ file.uuid }}
+                                    </p>
+                                    <p class="text-xs text-gray-400">{{ file.updated_at }}</p>
+                                </div>
+                            </div>
+                            <form method="post" action="{% url 'file_delete' room_uuid file.uuid %}">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded focus:outline-none">
+                                    X
+                                </button>
+                            </form>
+                        </a>
                     </div>
-                    <div id="llm-response">
-                        <!-- This is where the response stream will be injected -->
-                    </div>
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- Chat Area -->
+        <div class="w-3/4 bg-white p-4 shadow-lg flex flex-col">
+            <!-- Chat Room Title -->
+            <h1 class="text-2xl font-semibold mb-4">Chat Room: {{ room_uuid }}</h1>
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto">
+                <div id="chat-box">
+                    <!-- Chat messages will appear here -->
                 </div>
-                <!-- Input and Buttons -->
-                <div class="border-t p-4">
-                    <div class="flex items-center">
-                        <!-- File Upload -->
-                        <form id='upload-form'
-                              action="{% url 'chat-api:upload_file' room_uuid %}"
-                              method="post"
-                              enctype="multipart/form-data"
-                              hx-post="{% url 'chat-api:upload_file' room_uuid %}"
-                              hx-trigger="change from:#fileInput"
-                              hx-swap="none"
-                              hx-on="htmx:beforeRequest(uploadStart); htmx:afterRequest(uploadEnd)">
-                            <!-- CSRF token for Django forms -->
-                            {% csrf_token %}
-                            <label class="flex items-center px-4 py-2 bg-gray-200 text-blue-500 rounded-lg tracking-wide uppercase cursor-pointer hover:bg-blue-500 hover:text-white">
-                                <svg class="w-4 h-4 mr-2"
-                                     fill="currentColor"
-                                     xmlns="http://www.w3.org/2000/svg"
-                                     viewBox="0 0 20 20">
-                                    <path d="M10 6a1 1 0 01.293.07l6 4a1 1 0 01-1.086 1.682l-4.207-.964l-.293.633a1 1 0 01-1.28.385l-6-3a1 1 0 111.086-1.682l4.207.964l.293-.633a1 1 0 01.707-.464z">
-                                    </path>
-                                    <path d="M5 10a1 1 0 010-2h10a1 1 0 010 2H5z"></path>
-                                </svg>
-                                <span class="mt-2 text-base leading-normal">Select a file</span>
-                                <span id="uploadingIndicator"
-                                      class="hidden mt-2 text-base leading-normal ml-2">Uploading...</span>
-                                <input type="file" name="file" class="hidden" id="fileInput">
-                            </label>
-                            <input type="submit" value="Upload" style="display: none;">
-                        </form>
-                        <!-- Message Input -->
-                        <input type="text"
-                               class="flex-1 ml-4 p-2 rounded border"
-                               id="chat-message"
-                               placeholder="Type your message">
-                        <!-- Send Button -->
-                        <button id="send-button"
-                                class="ml-4 px-6 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Send</button>
-                    </div>
+                <div id="llm-response">
+                    <!-- This is where the response stream will be injected -->
+                </div>
+            </div>
+            <!-- Input and Buttons -->
+            <div class="border-t p-4">
+                <div class="flex items-center">
+                    <!-- File Upload -->
+                    <form id='upload-form'
+                          action="{% url 'upload_file' room_uuid %}"
+                          method="post"
+                          enctype="multipart/form-data"
+                          hx-post="{% url 'upload_file' room_uuid %}"
+                          hx-trigger="change from:#fileInput"
+                          hx-swap="none"
+                          hx-on="htmx:beforeRequest(uploadStart); htmx:afterRequest(uploadEnd)">
+                        <!-- CSRF token for Django forms -->
+                        {% csrf_token %}
+                        <label class="flex items-center px-4 py-2 bg-gray-200 text-blue-500 rounded-lg tracking-wide uppercase cursor-pointer hover:bg-blue-500 hover:text-white">
+                            <svg class="w-4 h-4 mr-2"
+                                 fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20">
+                                <path d="M10 6a1 1 0 01.293.07l6 4a1 1 0 01-1.086 1.682l-4.207-.964l-.293.633a1 1 0 01-1.28.385l-6-3a1 1 0 111.086-1.682l4.207.964l.293-.633a1 1 0 01.707-.464z">
+                                </path>
+                                <path d="M5 10a1 1 0 010-2h10a1 1 0 010 2H5z"></path>
+                            </svg>
+                            <span class="mt-2 text-base leading-normal">Select a file</span>
+                            <span id="uploadingIndicator"
+                                  class="hidden mt-2 text-base leading-normal ml-2">Uploading...</span>
+                            <input type="file" name="file" class="hidden" id="fileInput">
+                        </label>
+                        <input type="submit" value="Upload" style="display: none;">
+                    </form>
+                    <!-- Message Input -->
+                    <input type="text"
+                           class="flex-1 ml-4 p-2 rounded border"
+                           id="chat-message"
+                           placeholder="Type your message">
+                    <!-- Send Button -->
+                    <button id="send-button"
+                            class="ml-4 px-6 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Send</button>
                 </div>
             </div>
         </div>
-        <script>
+    </div>
+    <script>
         const roomUuidFromDjango = "{{ room_uuid }}";
         const getMessagesURIFromDjango = "{% url 'chat-api:get_messages' room_uuid %}";
         const setMessagesURIFromDjango = "{% url 'chat-api:set_user_message' room_uuid %}";
@@ -151,9 +135,12 @@
             console.log('upload ended')
             document.getElementById('fileInput').disabled = false;
             document.getElementById('uploadingIndicator').classList.add('hidden');
+
+            // Refresh the page after the upload is completed
+            window.location.reload();
         }
 
-        </script>
-        <script src="{% static 'chat/js/chat.js' %}"></script>
-    </body>
+    </script>
+    <script src="{% static 'chat/js/chat.js' %}"></script>
+</body>
 </html>
