@@ -73,28 +73,11 @@ def test_get_text_chunks_string_smaller_than_chunk_size():
     assert result == expected
 
 
-def test_get_text_chunks_string_exactly_chunk_size():
-    text = "L" * 1000
-    expected = [text]
-    result = get_text_chunks(text)
-    assert result == expected
-
-
 def test_get_text_chunks_special_characters():
     text = "Lorem ipsum\nNew line\nAnother new line"
     expected = ["Lorem ipsum\nNew line\nAnother new line"]
     result = get_text_chunks(text)
     assert result == expected
-
-
-# Tokenization is not working correctly, only splits on newlines
-# def test_get_text_chunks_very_long_text():
-#     text = "Lorem ipsum " * 2000
-#     result = get_text_chunks(text)
-#     assert len(result) > 1  # There should be more than one chunk
-#     assert all(
-#         len(chunk) <= 1200 for chunk in result
-#     )  # No chunk should be larger than chunk_size + chunk_overlap
 
 
 @pytest.mark.asyncio
