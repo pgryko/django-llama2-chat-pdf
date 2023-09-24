@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 from typing import AsyncIterable, BinaryIO, Union, Iterator
+import magic
 
 from asgiref.sync import sync_to_async
 from ninja import UploadedFile
@@ -238,15 +239,21 @@ def add_unique_document(
     """Add a new document to a conversation and a vector db collection.
     If an existing one exists, return it instead.
     """
-    content: bytes = file.read()
-    md5 = compute_md5(content)
-    text = get_pdf_text(content)
 
-    if file.content_type != "application/pdf":
+    mime = magic.Magic(mime=True)
+    file_type = mime.from_buffer(file.read(1024))
+    file.seek(0)  # reset file pointer to the beginning
+
+    if file_type != "application/pdf":
         raise HTTPException(
             status_code=400,
             detail="Only PDF files are supported.",
         )
+
+    content: bytes = file.read()
+
+    md5 = compute_md5(content)
+    text = get_pdf_text(content)
 
     existing_file = DocumentFile.objects.filter(
         md5=md5, conversation=conversation
