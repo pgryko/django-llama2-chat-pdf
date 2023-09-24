@@ -31,15 +31,15 @@ class ChromaDBSingleton:
             # self.ef = embedding_functions.InstructorEmbeddingFunction()
             # self.ef = embedding_functions.InstructorEmbeddingFunction(
             #     model_name="hkunlp/instructor-xl", device="cuda")
-            # if settings.HUGGING_FACE_API_TOKEN:
-            #     # BAAI/bge-base-en
-            #     self.default_ef = embedding_functions.HuggingFaceEmbeddingFunction(
-            #         api_key=settings.HUGGING_FACE_API_TOKEN,
-            #         model_name="BAAI/bge-base-en",
-            #     )
-            # else:
-            #     # all-MiniLM-L6-v2
-            #     self.default_ef = embedding_functions.DefaultEmbeddingFunction()
+            if settings.HUGGING_FACE_API_TOKEN:
+                # BAAI/bge-base-en
+                self.default_ef = embedding_functions.HuggingFaceEmbeddingFunction(
+                    api_key=settings.HUGGING_FACE_API_TOKEN,
+                    model_name="BAAI/bge-base-en",
+                )
+            else:
+                # all-MiniLM-L6-v2
+                self.default_ef = embedding_functions.DefaultEmbeddingFunction()
 
             self.default_ef = embedding_functions.DefaultEmbeddingFunction()
 

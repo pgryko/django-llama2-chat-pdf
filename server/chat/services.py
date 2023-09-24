@@ -5,7 +5,11 @@ from typing import AsyncIterable, BinaryIO, Union, Iterator
 from asgiref.sync import sync_to_async
 from ninja import UploadedFile
 from pypdf import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import (
+    CharacterTextSplitter,
+    RecursiveCharacterTextSplitter,
+    SpacyTextSplitter,
+)
 import io
 import replicate
 from fastapi import HTTPException
@@ -124,6 +128,38 @@ def get_pdf_text(pdf_doc: bytes) -> str:
     for page in pdf_reader.pages:
         text += page.extract_text()
     return text
+
+
+# Niave splitter that splits on newlines
+def simple_splitter(
+    text: str, chunk_size: int = 300, chunk_overlap: int = 50
+) -> list[str]:
+    text_splitter = CharacterTextSplitter(
+        separator="\n",
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len,
+    )
+    chunks = text_splitter.split_text(text)
+    return chunks
+
+
+def spacy_splitter(text: str) -> list[str]:
+    text_splitter = SpacyTextSplitter()
+    return text_splitter.split_text(text)
+
+
+def recursive_splitter(
+    text: str, chunk_size: int = 300, chunk_overlap: int = 50
+) -> list[str]:
+    text_splitter = RecursiveCharacterTextSplitter(
+        separators=["\n\n", "\n", " ", ""],
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len,
+    )
+
+    return text_splitter.split_text(text)
 
 
 def get_text_chunks(text: str) -> ChromadbDocuments:
