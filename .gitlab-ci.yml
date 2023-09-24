@@ -17,6 +17,7 @@ test python:
 
   before_script:
     - python3 -V # print version of python3
+    - apt install -y libmagic1
     - cd server
     - pip install --upgrade pip wheel setuptools "poetry==1.5.0"
     - poetry config virtualenvs.create false

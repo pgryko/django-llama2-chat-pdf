@@ -16,5 +16,14 @@ Django Server instructions exist [Here](server/README.md)
 
 If there is time a client folder will be created, running a reactjs client
 
+## Gitlab runner
+
+If you've configured a gitlab runner locally, you can test the gitlab ci via
+
+```shell
+gitlab-runner exec docker test\ python
+```
+
+
 ## License
 MIT
