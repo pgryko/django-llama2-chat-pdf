@@ -278,11 +278,11 @@ def add_unique_document(
 
     text_chunks: ChromadbDocuments = get_text_chunks(text)
 
-    logger.info(
-        "Adding document to ChromaDB",
-        conversation=conversation.uuid,
-        text_chunks=text_chunks,
-    )
+    # logger.info(
+    #     "Adding document to ChromaDB",
+    #     conversation=conversation.uuid,
+    #     text_chunks=text_chunks
+    # )
 
     # Append the md5 to the id to add pseudo uniqueness to uploaded documents.
     collection.add(
