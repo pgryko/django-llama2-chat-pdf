@@ -27,8 +27,8 @@
                 <h1 class="text-lg font-semibold mb-4">Uploaded Files</h1>
                 {% for file in files %}
                     <div class="p-4 bg-gray-100 rounded-lg shadow hover:bg-gray-200">
-                        {# TODO: Do nothing for now, later redirect to file info page #}
-                        <a href="{% url 'chat_room' room_uuid %}"
+                        {#  Link to viewing individual files #}
+                        <a href="{% url 'file_view' room_uuid file.uuid %}"
                            class="flex justify-between items-center w-full p-2 rounded-lg">
                             <div class="flex items-center">
                                 <div class="ml-4 text-gray-700">

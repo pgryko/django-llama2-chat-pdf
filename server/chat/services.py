@@ -180,16 +180,7 @@ def get_text_chunks(text: str) -> ChromadbDocuments:
         ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod,
         urna id aliquet lacinia, nunc nisl ultrices nunc,', 'id lacinia nunc nisl id nisl.']
     """
-    # This doesn't actually work correctly, only splits on newlines
-    text_splitter = CharacterTextSplitter(
-        separator="\n",
-        chunk_size=100,
-        chunk_overlap=20,
-        length_function=len,
-    )
-    chunks = text_splitter.split_text(text)
-
-    return chunks
+    return recursive_splitter(text)
 
 
 def compute_md5(data: Union[bytes, BinaryIO]) -> str:
@@ -244,16 +235,20 @@ def add_unique_document(
     file_type = mime.from_buffer(file.read(1024))
     file.seek(0)  # reset file pointer to the beginning
 
-    if file_type != "application/pdf":
+    if file_type not in ["application/pdf", "text/plain"]:
         raise HTTPException(
             status_code=400,
-            detail="Only PDF files are supported.",
+            detail="Only PDFs and text documents files are supported.",
         )
 
     content: bytes = file.read()
 
-    md5 = compute_md5(content)
-    text = get_pdf_text(content)
+    if file_type == "application/pdf":
+        text: str = get_pdf_text(content)
+    else:
+        text: str = content.decode("utf-8")
+
+    md5: str = compute_md5(content)
 
     existing_file = DocumentFile.objects.filter(
         md5=md5, conversation=conversation

@@ -21,6 +21,8 @@ from server.apis import api as server_api
 from chat import urls as chat_urls
 from server.views import home
 from django.contrib.auth.views import LoginView, LogoutView
+from django.conf.urls.static import static
+from django.conf import settings
 
 
 urlpatterns = [
@@ -32,3 +34,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("", home),
 ]
+
+# For Production, replace this with S3 type bucket storage with proper user specific permissions
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

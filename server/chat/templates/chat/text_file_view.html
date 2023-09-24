@@ -1,0 +1,15 @@
+{% extends "base.html" %} <!-- Assuming you have a base template. If not, you can remove this line. -->
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-xl font-semibold mb-4">Text File Content</h1>
+
+    <div class="bg-white p-4 rounded shadow">
+        <!-- Display the text file content in a preformatted text block -->
+        <pre class="break-all whitespace-pre-wrap">{{ content }}</pre>
+    </div>
+
+    <a href="{% url 'chat_room' room_uuid %}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2
+    rounded">Go Back</a>
+</div>
+{% endblock %}

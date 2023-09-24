@@ -170,7 +170,7 @@ def query_collection(collection_uuid: str, query: list[str]) -> str:
     collection = ChromaDBSingleton().get_or_create_collection(name=collection_uuid)
     response: list[list] = collection.query(
         query_texts=query,
-        n_results=10,
+        n_results=20,
     )["documents"]
 
     if len(response) > 0:
