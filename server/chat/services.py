@@ -4,6 +4,7 @@ from typing import AsyncIterable, BinaryIO, Union, Iterator
 import magic
 
 from asgiref.sync import sync_to_async
+from ninja.errors import ValidationError
 from ninja import UploadedFile
 from pypdf import PdfReader
 from langchain.text_splitter import (
@@ -231,14 +232,28 @@ def add_unique_document(
     If an existing one exists, return it instead.
     """
 
-    mime = magic.Magic(mime=True)
-    file_type = mime.from_buffer(file.read(1024))
-    file.seek(0)  # reset file pointer to the beginning
+    try:
+        mime = magic.Magic(mime=True)
+        file_type = mime.from_buffer(file.read(1024))
+        file.seek(0)  # reset file pointer to the beginning
+    except Exception:
+        raise ValidationError(
+            errors=[
+                {
+                    "type": ["file"],
+                    "message": "Error detecting file type.",
+                }
+            ],
+        )
 
     if file_type not in ["application/pdf", "text/plain"]:
-        raise HTTPException(
-            status_code=400,
-            detail="Only PDFs and text documents files are supported.",
+        raise ValidationError(
+            errors=[
+                {
+                    "type": ["file"],
+                    "message": "Only PDFs and text documents files are supported.",
+                }
+            ],
         )
 
     content: bytes = file.read()

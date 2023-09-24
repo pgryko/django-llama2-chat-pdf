@@ -1,8 +1,9 @@
 from typing import List
 
 from asgiref.sync import sync_to_async
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, JsonResponse
 from ninja import Router, UploadedFile, File
+from ninja.errors import ValidationError
 
 from structlog import get_logger
 
@@ -27,7 +28,11 @@ router = Router()
 async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...)):
     room = await aget_object_or_404(Conversation, uuid=room_uuid)
 
-    await sync_to_async(services.add_unique_document)(file=file, conversation=room)
+    try:
+        await sync_to_async(services.add_unique_document)(file=file, conversation=room)
+    except ValidationError as e:
+        # TODO: still no returning proper detail for validation errors
+        return JsonResponse({"detail": str(e.errors)}, status=400)
 
     files = await sync_to_async(list)(
         DocumentFile.objects.filter(conversation__uuid=room_uuid).all()

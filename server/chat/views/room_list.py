@@ -3,8 +3,9 @@ import uuid
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django import forms
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
+from ninja.errors import ValidationError
 from pydantic import UUID4
 
 from chat import services
@@ -135,6 +136,9 @@ def upload_file(request, chatroom_uuid: UUID4):
     if request.method == "POST":
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            services.add_unique_document(file=form.files["file"], conversation=room)
+            try:
+                services.add_unique_document(file=form.files["file"], conversation=room)
+            except ValidationError as e:
+                return JsonResponse({"detail": str(e.errors)}, status=400)
 
     return redirect(request.META.get("HTTP_REFERER", "redirect_if_referer_not_found"))

@@ -73,10 +73,10 @@
                 <div class="flex items-center">
                     <!-- File Upload -->
                     <form id='upload-form'
-                          action="{% url 'upload_file' room_uuid %}"
+                          action="{% url 'chat-api:upload_file' room_uuid %}"
                           method="post"
                           enctype="multipart/form-data"
-                          hx-post="{% url 'upload_file' room_uuid %}"
+                          hx-post="{% url 'chat-api:upload_file' room_uuid %}"
                           hx-trigger="change from:#fileInput"
                           hx-swap="none"
                           hx-on="htmx:beforeRequest(uploadStart); htmx:afterRequest(uploadEnd)">

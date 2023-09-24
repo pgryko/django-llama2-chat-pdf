@@ -16,7 +16,14 @@ function displayMessages(data) {
         messageDiv.classList.add('flex', 'items-start', 'mb-4');
 
         const messageContent = document.createElement('div');
-        messageContent.innerText = msg.content;
+        const messageHeader = document.createElement('div');
+        messageHeader.innerText = msg.message_type;  // Display the message type as the header
+        messageHeader.classList.add('text-xs', 'font-bold', 'mb-1');  // Style the header
+        messageContent.appendChild(messageHeader);  // Add the header to the messageContent
+
+        const messageText = document.createElement('div');
+        messageText.innerText = msg.content;
+        messageContent.appendChild(messageText);  // Add the message text below the header
 
         if (msg.message_type === 'USER') {
             messageContent.classList.add('rounded-lg', 'bg-blue-100', 'inline-block', 'p-4');
