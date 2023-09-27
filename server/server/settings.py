@@ -151,14 +151,14 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "django.core.files.storage.FileSystemStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+#     },
+# }
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -197,6 +197,12 @@ HUGGING_FACE_API_TOKEN = config("HUGGING_FACE_API_TOKEN", None)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.ERROR)  # or whichever level you desire
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter("%(message)s"))
+root_logger.addHandler(console_handler)
+
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -222,10 +228,38 @@ if SENTRY_DSN:
         processors=[
             structlog.stdlib.add_logger_name,  # optional, must be placed before SentryProcessor()
             structlog.stdlib.add_log_level,  # required before SentryProcessor()
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            # Add a console renderer here
+            structlog.dev.ConsoleRenderer(),
             SentryProcessor(event_level=logging.ERROR),
         ],
+        context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.AsyncBoundLogger,
+        cache_logger_on_first_use=True,
+    )
+
+else:
+    # Log to console only
+    structlog.configure(
+        processors=[
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            structlog.dev.ConsoleRenderer(),
+        ],
+        context_class=dict,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.stdlib.AsyncBoundLogger,
+        cache_logger_on_first_use=True,
     )
 
 
