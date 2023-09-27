@@ -192,8 +192,6 @@ async def set_user_message(
 
     conversation = await Conversation.objects.aget(uuid=room_uuid)
 
-    # await conversation.messages.all().adelete()
-
     await Message.objects.acreate(
         conversation=conversation,
         message_type=MessageTypeChoices.SYSTEM,

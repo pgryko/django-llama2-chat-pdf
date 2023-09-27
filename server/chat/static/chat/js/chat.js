@@ -23,6 +23,11 @@ function displayMessages(data) {
 
         const messageText = document.createElement('div');
         messageText.innerText = msg.content;
+
+        if (msg.message_type === 'CONTEXT') {
+            messageText.classList.add('text-xs'); // Adjust the class as per your desired text size
+        }
+
         messageContent.appendChild(messageText);  // Add the message text below the header
 
         if (msg.message_type === 'USER') {

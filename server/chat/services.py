@@ -32,7 +32,8 @@ import structlog
 logger = structlog.get_logger()
 
 SYSTEM_PROMPT = """System: Use the following pieces of context to answer the users question.
-If you don't know the answer, just say that you don't know, don't try to make up an answer."""
+If you don't know the answer, just say that you don't know, don't try to make up an answer. 
+Format the output in markdown"""
 
 
 async def create_input(messages: list[Message]) -> str:
