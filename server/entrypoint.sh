@@ -3,6 +3,9 @@
 # Wait for database to get available
 ./wait-for-it.sh db:5432 --timeout=30
 
+# Collect static files
+python manage.py collectstatic --noinput
+
 # Run migrations
 python manage.py migrate --noinput
 

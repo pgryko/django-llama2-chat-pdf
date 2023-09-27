@@ -1,8 +1,9 @@
 # Create your views here.
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 from chat.models import Conversation, DocumentFile
 
@@ -39,8 +40,7 @@ def file_view(request, room_uuid, file_uuid):
     file_obj = get_object_or_404(DocumentFile, uuid=file_uuid)
 
     if file_obj.file.url.endswith(".pdf"):
-        # For PDFs, redirecting to the file URL is a common practice as most browsers have built-in PDF viewers
-        return redirect(file_obj.file.url)
+        return redirect(reverse("serve_file", kwargs={"file_uuid": file_uuid}))
     elif file_obj.file.url.endswith((".txt", ".html")):
         # For text files, you can render the content in a basic view
         with open(file_obj.file.path, "r") as f:
@@ -51,7 +51,16 @@ def file_view(request, room_uuid, file_uuid):
             {"content": content, "room_uuid": room_uuid},
         )
     elif file_obj.file.url.endswith((".jpg", ".jpeg", ".png", ".gif")):
-        # For images, again redirecting to the file URL is common as the browser can display images
-        return redirect(file_obj.file.url)
+        return redirect(reverse("serve_file", kwargs={"file_uuid": file_uuid}))
     else:
         return HttpResponse("Unsupported file type.")
+
+
+# Don't use this on production, use S3 type bucket storage with proper user specific permissions
+@login_required
+def serve_file(request, file_uuid):
+    user_file = get_object_or_404(
+        DocumentFile, uuid=file_uuid, conversation__user=request.user
+    )
+
+    return FileResponse(user_file.file)

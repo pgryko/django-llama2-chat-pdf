@@ -26,6 +26,5 @@ urlpatterns = [
         chat_views.file_view,
         name="file_view",
     ),
-    # path('streaming/<uuid:room_id>/', views.chat_streaming, name='chat_streaming'),
-    # ... (Your other URL patterns for chat and upload, updated to handle room UUIDs)
+    path("file/<uuid:file_uuid>/", chat_views.serve_file, name="serve_file"),
 ]

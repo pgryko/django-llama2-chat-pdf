@@ -29,7 +29,7 @@ class Conversation(TimeStampField):
 
 
 class DocumentFile(TimeStampField):
-    file = models.FileField(upload_to="uploads/")
+    file = models.FileField(upload_to="user_files/")
     md5 = models.CharField(max_length=32, blank=True, null=True)
     original_name = models.CharField(max_length=255, blank=True, null=True)
 
