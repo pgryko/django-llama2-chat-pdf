@@ -194,6 +194,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 HUGGING_FACE_API_TOKEN = config("HUGGING_FACE_API_TOKEN", None)
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 if SENTRY_DSN:
     sentry_sdk.init(
