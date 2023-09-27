@@ -151,11 +151,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     // Convert the chunk into a string
                     const chunk = decoder.decode(value, {stream: true});
 
-                    // Here you can handle the chunk, for example, parsing it as an SSE event
-                    // For this example, assuming each chunk is a valid JSON message:
                     try {
-
-                        messageDiv.innerHTML += chunk;
+                        // Replace newlines with <br> tags for better formatting
+                        messageDiv.innerHTML += chunk.replace(/\n/g, '<br>');
 
                     } catch (e) {
                         console.error("Failed to parse message:", e);
