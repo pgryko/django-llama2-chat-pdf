@@ -192,21 +192,41 @@ async def set_user_message(
 
     conversation = await Conversation.objects.aget(uuid=room_uuid)
 
+    # IF there is no context provided use this prompt
+    no_context_prompt = (
+        "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, "
+        "while being safe.  Your answers should not include any harmful, unethical, racist, sexist, "
+        "toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased "
+        "and positive in nature. If a question does not make any sense, or is not factually coherent, "
+        "explain why instead of answering something not correct. If you don't know the answer to a question, "
+        "please don't share false information."
+    )
+
+    # Else use this one
+    context_prompt = (
+        "Use the following pieces of context to answer the users question. If you don't know the answer, "
+        "just say that you don't know, don't try to make up an answer."
+    )
+
+    vector_db_response = await query_collection(
+        str(conversation.collection), [message.content]
+    )
+
+    # If the vector db returns nothing, use the no context prompt
+    submitted_prompt = context_prompt
+    if vector_db_response is None or vector_db_response == "":
+        submitted_prompt = no_context_prompt
+
     await Message.objects.acreate(
         conversation=conversation,
         message_type=MessageTypeChoices.SYSTEM,
-        content="Use the following pieces of context to answer the users question. If you don't know the answer, "
-        "just say that you don't know, don't try to make up an answer.",
+        content=submitted_prompt,
     )
 
     await Message.objects.acreate(
         conversation=conversation,
         message_type=message.role,
         content=message.content,
-    )
-
-    vector_db_response = await query_collection(
-        str(conversation.collection), [message.content]
     )
 
     await Message.objects.acreate(
