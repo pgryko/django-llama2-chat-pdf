@@ -82,7 +82,7 @@ async def get_replicate_stream(
                 "prompt": prompt,
                 "system_prompt": "",
             },
-            max_new_tokens=1000,
+            max_new_tokens=500,
             debug=True,
         )
         for item in output:
