@@ -82,6 +82,8 @@ async def get_replicate_stream(
                 "prompt": prompt,
                 "system_prompt": "",
             },
+            max_new_tokens=1000,
+            debug=True,
         )
         for item in output:
             # Dumb as hell - streaming only works if you introduce a tiny delay
