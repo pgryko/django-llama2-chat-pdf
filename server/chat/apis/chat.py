@@ -43,7 +43,7 @@ async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...))
             created_at=file.created_at,
             updated_at=file.updated_at,
             url=file.file.url,
-            md5=file.md5,
+            sha256=file.sha256,
             name=file.file.name,
         )
         for file in files
@@ -63,7 +63,7 @@ async def get_files(request, room_uuid: UUID4):
             created_at=file.created_at,
             updated_at=file.updated_at,
             url=file.file.url,
-            md5=file.md5,
+            sha256=file.sha256,
             name=file.file.name,
         )
         for file in files
@@ -86,7 +86,7 @@ async def delete_files(request, room_uuid: UUID4, file_uuid: UUID4):
             created_at=file.created_at,
             updated_at=file.updated_at,
             url=file.file.url,
-            md5=file.md5,
+            sha256=file.sha256,
             name=file.file.name,
         )
         for file in files

@@ -57,4 +57,4 @@ class TimeStampSchema(BaseModel):
 class DocumentFileSchema(TimeStampSchema):
     url: str
     name: str
-    md5: Optional[str]
+    sha256: Optional[str]

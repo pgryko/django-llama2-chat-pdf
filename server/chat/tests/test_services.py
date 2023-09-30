@@ -1,7 +1,12 @@
 import io
 
 import pytest
-from ..services import get_pdf_text, compute_md5, get_text_chunks, get_replicate_stream
+from ..services import (
+    get_pdf_text,
+    compute_sha256,
+    get_text_chunks,
+    get_replicate_stream,
+)
 
 
 def test_get_pdf_text_valid():
@@ -34,27 +39,27 @@ def test_get_pdf_text_invalid():
         get_pdf_text(pdf_content)
 
 
-def test_compute_md5_with_bytes():
+def test_compute_sha256_with_bytes():
     # Create an in-memory binary stream with some data
     data = b"Hello, World!"
-    result = compute_md5(data)
+    result = compute_sha256(data)
 
-    # Known MD5 hash for the string "Hello, World!"
-    expected = "65a8e27d8879283831b664bd8b7f0ad4"
+    # Known sha256 hash for the string "Hello, World!"
+    expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
 
     assert result == expected
 
 
-def test_compute_md5_with_file_object():
+def test_compute_sha256_with_file_object():
     # Create an in-memory binary stream with some data
     data = b"Hello, World!"
     file_object = io.BytesIO(data)
 
-    # Compute its MD5 hash
-    result = compute_md5(file_object)
+    # Compute its sha256 hash
+    result = compute_sha256(file_object)
 
-    # Known MD5 hash for the string "Hello, World!"
-    expected = "65a8e27d8879283831b664bd8b7f0ad4"
+    # Known sha256 hash for the string "Hello, World!"
+    expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
 
     assert result == expected
 

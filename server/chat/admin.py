@@ -127,7 +127,7 @@ class DocumentFileInline(admin.TabularInline):
     extra = 0  # Number of empty forms to display
     readonly_fields = ("uuid", "created_at", "updated_at")
 
-    fields = ("uuid", "created_at", "updated_at", "file", "md5")
+    fields = ("uuid", "created_at", "updated_at", "file", "sha256")
 
 
 class ConversationAdmin(admin.ModelAdmin):
@@ -173,12 +173,19 @@ class MessageAdmin(admin.ModelAdmin):
 
 
 class DocumentFileAdmin(admin.ModelAdmin):
-    list_display = ("uuid", "created_at", "updated_at", "file", "md5", "conversation")
+    list_display = (
+        "uuid",
+        "created_at",
+        "updated_at",
+        "file",
+        "sha256",
+        "conversation",
+    )
     list_filter = ("created_at", "updated_at", "conversation")
     search_fields = (
         "uuid",
         "file",
-        "md5",
+        "sha256",
         "conversation__uuid",
     )  # Replace 'name' with the actual field in the Conversation model
 
@@ -192,7 +199,7 @@ class DocumentFileAdmin(admin.ModelAdmin):
                     "created_at",
                     "updated_at",
                     "file",
-                    "md5",
+                    "sha256",
                     "conversation",
                 ),
             },

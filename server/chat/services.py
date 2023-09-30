@@ -187,31 +187,31 @@ def get_text_chunks(text: str) -> ChromadbDocuments:
     return recursive_splitter(text)
 
 
-def compute_md5(data: Union[bytes, BinaryIO]) -> str:
+def compute_sha256(data: Union[bytes, BinaryIO]) -> str:
     """
-    Compute the MD5 hash of the contents of a bytes object or file-like object.
+    Compute the sha256 hash of the contents of a bytes object or file-like object.
 
     Args:
         data (Union[bytes, BinaryIO]): A bytes object or file-like object that supports
                                        binary read and seek operations.
 
     Returns:
-        str: The MD5 hash of the contents.
+        str: The sha256 hash of the contents.
     """
 
-    md5 = hashlib.md5()
+    sha256 = hashlib.sha256()
 
     if isinstance(data, bytes):
-        md5.update(data)
+        sha256.update(data)
     else:
         # Read the file in chunks to avoid using too much memory
         for chunk in iter(lambda: data.read(4096), b""):
-            md5.update(chunk)
+            sha256.update(chunk)
 
         # Reset the file pointer to its beginning
         data.seek(0)
 
-    return md5.hexdigest()
+    return sha256.hexdigest()
 
 
 def delete_conversation(conversation: Conversation):
@@ -266,10 +266,10 @@ def add_unique_document(
     else:
         text: str = content.decode("utf-8")
 
-    md5: str = compute_md5(content)
+    sha256: str = compute_sha256(content)
 
     existing_file = DocumentFile.objects.filter(
-        md5=md5, conversation=conversation
+        sha256=sha256, conversation=conversation
     ).first()
 
     if existing_file:
@@ -287,15 +287,15 @@ def add_unique_document(
     #     text_chunks=text_chunks
     # )
 
-    # Append the md5 to the id to add pseudo uniqueness to uploaded documents.
+    # Append the sha256 to the id to add pseudo uniqueness to uploaded documents.
     collection.add(
         documents=text_chunks,
-        ids=[md5 + str(i) for i in range(len(text_chunks))],
-        metadatas=[{"md5": md5} for _ in range(len(text_chunks))],
+        ids=[sha256 + str(i) for i in range(len(text_chunks))],
+        metadatas=[{"sha256": sha256} for _ in range(len(text_chunks))],
     )
 
     return DocumentFile.objects.create(
-        file=file, md5=md5, conversation=conversation, original_name=file.name
+        file=file, sha256=sha256, conversation=conversation, original_name=file.name
     )
 
 
@@ -305,7 +305,7 @@ def delete_document(document_file: DocumentFile):
         chroma_collection = client.get_collection(
             name=str(document_file.conversation.collection)
         )
-        chroma_collection.delete(where={"md5": document_file.md5})
+        chroma_collection.delete(where={"sha256": document_file.sha256})
     except Exception as e:
         logger.error("Error deleting document from ChromaDB", error=str(e))
 

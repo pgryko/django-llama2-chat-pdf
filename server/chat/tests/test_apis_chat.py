@@ -89,7 +89,7 @@ async def test_upload_file(async_authenticated_client):
 
     # Validate response data
     assert response_data[0]["url"] == created_file.file.url
-    assert response_data[0]["md5"] == created_file.md5
+    assert response_data[0]["sha256"] == created_file.sha256
 
     assert "two_lines_example" in response_data[0]["name"]
 
@@ -125,7 +125,7 @@ async def test_get_files(async_authenticated_client):
 
     await DocumentFile.objects.acreate(
         file=file,
-        md5="c4d749b9acf8fc78b699a2c6a4b7dfe2",  # Generate the MD5 hash of the file if necessary
+        sha256="c4d749b9acf8fc78b699a2c6a4b7dfe2",  # Generate the sha256 hash of the file if necessary
         conversation=room,
     )
 
@@ -155,7 +155,7 @@ async def test_delete_files(async_authenticated_client):
 
     document_file = await DocumentFile.objects.acreate(
         file=file,
-        md5="c4d749b9acf8fc78b699a2c6a4b7dfe2",  # Generate the MD5 hash of the file if necessary
+        sha256="c4d749b9acf8fc78b699a2c6a4b7dfe2",  # Generate the sha256 hash of the file if necessary
         conversation=room,
     )
 
