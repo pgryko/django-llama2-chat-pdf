@@ -27,10 +27,11 @@ services:
       - QDRANT_HOST=qdrant
     env_file: .env
 
-  qdrant:
-    image: qdrant/qdrant:v1.2.2
-    volumes:
-      - ./data/qdrant_storage:/qdrant/storage
+# Use elastic search instead of qdrant
+#  qdrant:
+#    image: qdrant/qdrant:v1.2.2
+#    volumes:
+#      - ./data/qdrant_storage:/qdrant/storage
 
 volumes:
   postgres_data:
