@@ -26,10 +26,31 @@ router = Router()
 
 @router.post("/upload/{room_uuid}", response=List[DocumentFileSchema])
 async def upload_file(request, room_uuid: UUID4, file: UploadedFile = File(...)):
+    # Not a good API - upload a whole zip file can take a while to process with no user feedback
+    # Also risk of ZIP bombs
+    # Currently no limit on file size
     room = await aget_object_or_404(Conversation, uuid=room_uuid)
 
     try:
-        await sync_to_async(services.add_unique_document)(file=file, conversation=room)
+        file_type = services.get_file_type(file)
+
+        if file_type not in ["application/pdf", "text/plain", "application/zip"]:
+            return JsonResponse(
+                {
+                    "detail": f"File type {file_type} is not supported. Supported file types are: "
+                    f"text, pdf, zip"
+                },
+                status=400,
+            )
+
+        if file_type == "application/zip":
+            await sync_to_async(services.add_zipped_documents)(
+                file=file, conversation=room
+            )
+        else:
+            await sync_to_async(services.add_unique_document)(
+                file=file, conversation=room
+            )
     except ValidationError as e:
         # TODO: still no returning proper detail for validation errors
         return JsonResponse({"detail": str(e.errors)}, status=400)

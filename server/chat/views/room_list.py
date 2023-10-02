@@ -65,6 +65,7 @@ def chatroom_list(request):
     conversations = (
         Conversation.objects.filter(user=user)
         .annotate(message_count=Count("messages"))
+        .annotate(file_count=Count("documentfiles"))
         .order_by(sort_by)
     )
 

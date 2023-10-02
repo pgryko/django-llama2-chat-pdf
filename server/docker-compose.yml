@@ -23,8 +23,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      - QDRANT_HOST=qdrant
+#    environment:
+#      - QDRANT_HOST=qdrant
     env_file: .env
 
 # Use elastic search instead of qdrant

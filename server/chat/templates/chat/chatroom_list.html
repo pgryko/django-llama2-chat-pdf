@@ -35,6 +35,7 @@
                                     </p>
                                     <p class="text-sm">
                                         <span class="text-gray-500">Message Count:</span> {{ conversation.message_count }}
+                                        <span class="text-gray-500">  File Count:</span> {{ conversation.file_count }}
                                     </p>
                                 </div>
                                 <form method="post" action="{% url 'chatroom_delete' conversation.uuid %}">

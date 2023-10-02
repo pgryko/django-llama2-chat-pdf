@@ -1,9 +1,11 @@
 import asyncio
 import hashlib
+import zipfile
 from typing import AsyncIterable, BinaryIO, Union, Iterator
 import magic
 
 from asgiref.sync import sync_to_async
+from django.core.files import File
 from ninja.errors import ValidationError
 from ninja import UploadedFile
 from pypdf import PdfReader
@@ -228,17 +230,25 @@ async def async_delete_conversation(conversation: Conversation):
     await sync_to_async(delete_conversation)(conversation)
 
 
+def get_file_type(file: Union[BinaryIO, UploadedFile]) -> str:
+    mime = magic.Magic(mime=True)
+    file_type = mime.from_buffer(file.read(1024))
+    file.seek(0)  # reset file pointer to the beginning
+    return file_type
+
+
 def add_unique_document(
-    file: Union[BinaryIO, UploadedFile], conversation: Conversation
+    file: Union[BinaryIO, UploadedFile],
+    conversation: Conversation,
+    file_type: str = None,
 ):
     """Add a new document to a conversation and a vector db collection.
     If an existing one exists, return it instead.
     """
 
     try:
-        mime = magic.Magic(mime=True)
-        file_type = mime.from_buffer(file.read(1024))
-        file.seek(0)  # reset file pointer to the beginning
+        if file_type is None:
+            file_type = get_file_type(file)
     except Exception:
         raise ValidationError(
             errors=[
@@ -294,9 +304,36 @@ def add_unique_document(
         metadatas=[{"sha256": sha256} for _ in range(len(text_chunks))],
     )
 
+    if isinstance(file, io.BytesIO):
+        file = File(file, name=file.name)
+
     return DocumentFile.objects.create(
         file=file, sha256=sha256, conversation=conversation, original_name=file.name
     )
+
+
+def add_zipped_documents(file: UploadedFile, conversation: Conversation):
+    file_list = []
+    with zipfile.ZipFile(file.file) as z:
+        for name in z.namelist():
+            with z.open(name) as f:
+                file_content = f.read()
+                in_memory_file = io.BytesIO(file_content)
+                in_memory_file.name = name
+
+                file_type = get_file_type(in_memory_file)
+
+                print(f"Processing {name} File type: {file_type}")
+
+                if file_type in ["application/pdf", "text/plain"]:
+                    file_list.append(
+                        add_unique_document(
+                            file=in_memory_file,
+                            conversation=conversation,
+                            file_type=file_type,
+                        )
+                    )
+    return file_list
 
 
 def delete_document(document_file: DocumentFile):
