@@ -33,6 +33,8 @@ import structlog
 
 logger = structlog.get_logger()
 
+async_logger = structlog.get_logger("async_logger")
+
 SYSTEM_PROMPT = """System: Use the following pieces of context to answer the users question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer. 
 Format the output in markdown"""
@@ -222,6 +224,7 @@ def delete_conversation(conversation: Conversation):
         client.delete_collection(name=str(conversation.collection))
     except Exception as e:
         logger.error("Error deleting collection from ChromaDB", error=str(e))
+        pass
 
     conversation.delete()
 
@@ -291,11 +294,11 @@ def add_unique_document(
 
     text_chunks: ChromadbDocuments = get_text_chunks(text)
 
-    # logger.info(
-    #     "Adding document to ChromaDB",
-    #     conversation=conversation.uuid,
-    #     text_chunks=text_chunks
-    # )
+    logger.info(
+        "Adding document to ChromaDB",
+        conversation=conversation.uuid,
+        text_chunks=text_chunks,
+    )
 
     # Append the sha256 to the id to add pseudo uniqueness to uploaded documents.
     collection.add(
@@ -323,7 +326,7 @@ def add_zipped_documents(file: UploadedFile, conversation: Conversation):
 
                 file_type = get_file_type(in_memory_file)
 
-                print(f"Processing {name} File type: {file_type}")
+                logger.info(f"Processing {name} File type: {file_type}")
 
                 if file_type in ["application/pdf", "text/plain"]:
                     file_list.append(

@@ -5,6 +5,7 @@ from django.db.models import Count
 from django import forms
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse
 from ninja.errors import ValidationError
 from pydantic import UUID4
 
@@ -51,10 +52,10 @@ def chatroom_delete(request, chatroom_uuid):
 @login_required
 def chatroom_create(request):
     if request.method == "POST":
-        Conversation.objects.create(user=request.user, collection=uuid.uuid4())
-        return redirect(
-            request.META.get("HTTP_REFERER", "redirect_if_referer_not_found")
+        conversation = Conversation.objects.create(
+            user=request.user, collection=uuid.uuid4()
         )
+        return redirect(reverse("chat_room", kwargs={"room_uuid": conversation.uuid}))
 
 
 @login_required
