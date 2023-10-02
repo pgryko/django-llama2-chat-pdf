@@ -30,7 +30,7 @@ class Conversation(TimeStampField):
 
 class DocumentFile(TimeStampField):
     file = models.FileField(upload_to="user_files/")
-    sha256 = models.CharField(max_length=32, blank=True, null=True)
+    sha256 = models.CharField(max_length=64, blank=True, null=True)
     original_name = models.CharField(max_length=255, blank=True, null=True)
 
     conversation = models.ForeignKey(
