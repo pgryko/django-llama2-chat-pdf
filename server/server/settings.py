@@ -237,7 +237,7 @@ if SENTRY_DSN:
         ],
         context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
-        # wrapper_class=structlog.stdlib.AsyncBoundLogger,
+        wrapper_class=structlog.stdlib.AsyncBoundLogger,
         cache_logger_on_first_use=True,
     )
 
@@ -256,7 +256,7 @@ else:
         ],
         context_class=dict,
         logger_factory=structlog.stdlib.LoggerFactory(),
-        # wrapper_class=structlog.stdlib.AsyncBoundLogger,
+        wrapper_class=structlog.stdlib.AsyncBoundLogger,
         cache_logger_on_first_use=True,
     )
 
