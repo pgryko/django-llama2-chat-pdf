@@ -16,9 +16,9 @@
         </style>
     </head>
     <body class="bg-gray-200" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-        <div class="container mx-auto p-4 flex h-screen">
+        <div class="container mx-auto p-4 flex flex-col lg:flex-row h-screen">
             <!-- Sidebar for Uploaded files -->
-            <div class="w-1/4 bg-white p-4 shadow-lg overflow-y-auto"
+            <div class="w-full lg:w-1/4 bg-white p-4 shadow-lg overflow-y-auto mb-4 lg:mb-0"
                  style="max-height: calc(100vh - 2rem)">
                 <!-- Back Button -->
                 <a href="{% url 'chatroom_list' %}">
@@ -56,7 +56,7 @@
             </ul>
         </div>
         <!-- Chat Area -->
-        <div class="w-3/4 bg-white p-4 shadow-lg flex flex-col">
+        <div class="w-full lg:w-3/4 bg-white p-4 shadow-lg flex flex-col">
             <!-- Chat Room Title -->
             <h1 class="text-2xl font-semibold mb-4">Chat Room: {{ room_uuid }}</h1>
             <!-- Messages -->
@@ -70,7 +70,7 @@
             </div>
             <!-- Input and Buttons -->
             <div class="border-t p-4">
-                <div class="flex items-center">
+                <div class="flex flex-col lg:flex-row items-center">
                     <!-- File Upload -->
                     <form id='upload-form'
                           action="{% url 'chat-api:upload_file' room_uuid %}"
@@ -100,12 +100,12 @@
                     </form>
                     <!-- Message Input -->
                     <input type="text"
-                           class="flex-1 ml-4 p-2 rounded border"
+                           class="w-full lg:flex-1 mt-2 lg:mt-0 ml-0 lg:ml-4 p-2 rounded border"
                            id="chat-message"
                            placeholder="Type your message">
                     <!-- Send Button -->
                     <button id="send-button"
-                            class="ml-4 px-6 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Send</button>
+                            class="mt-2 lg:mt-0 w-full lg:w-auto ml-0 lg:ml-4 px-6 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Send</button>
                 </div>
             </div>
         </div>
