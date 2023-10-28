@@ -10,6 +10,8 @@ This project is hosted on [GitHub](https://github.com/pgryko/django-llama2-react
 (https://gitlab.com/pgryko/django-llama2-reactjs-chat-pdf), but maintained on [GitLab](https://gitlab.
 com/pgryko/django-llama2-reactjs-chat-pdf).
 
+![Project Demo](./demo-15fps.gif)
+
 ## Getting started:
 
 Django Server instructions exist [Here](server/README.md)
