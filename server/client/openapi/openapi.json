@@ -1,0 +1,425 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Chat API",
+    "version": "1.0.0",
+    "description": ""
+  },
+  "paths": {
+    "/api/chat/chroma/heartbeat": {
+      "get": {
+        "operationId": "chat_apis_chroma_chroma_heartbeat",
+        "summary": "Chroma Heartbeat",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "From chromadb get the current time in nanoseconds since epoch.\nUsed to check if the chroma service is alive.",
+        "tags": [
+          "chroma"
+        ]
+      }
+    },
+    "/api/chat/chroma/list": {
+      "get": {
+        "operationId": "chat_apis_chroma_list_collections",
+        "summary": "List Collections",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Return a list of all collections.",
+        "tags": [
+          "chroma"
+        ]
+      }
+    },
+    "/api/chat/chroma/{collection}": {
+      "get": {
+        "operationId": "chat_apis_chroma_chroma_get",
+        "summary": "Chroma Get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection",
+            "schema": {
+              "title": "Collection",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "chroma"
+        ]
+      },
+      "delete": {
+        "operationId": "chat_apis_chroma_chroma_delete",
+        "summary": "Chroma Delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection",
+            "schema": {
+              "title": "Collection",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Deletes the contents of the collection",
+        "tags": [
+          "chroma"
+        ]
+      }
+    },
+    "/api/chat/upload/{room_uuid}": {
+      "post": {
+        "operationId": "chat_apis_chat_upload_file",
+        "summary": "Upload File",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentFileSchema"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chat"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "title": "FileParams",
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "title": "File",
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/chat/files/{room_uuid}": {
+      "get": {
+        "operationId": "chat_apis_chat_get_files",
+        "summary": "Get Files",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentFileSchema"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/file/{room_uuid}/{file_uuid}": {
+      "delete": {
+        "operationId": "chat_apis_chat_delete_files",
+        "summary": "Delete Files",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "file_uuid",
+            "schema": {
+              "title": "File Uuid",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentFileSchema"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/stream_chat/{room_uuid}": {
+      "get": {
+        "operationId": "chat_apis_chat_get_stream_chat",
+        "summary": "Get Stream Chat",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string",
+              "format": "uuid4"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/messages/{room_uuid}": {
+      "post": {
+        "operationId": "chat_apis_chat_set_messages",
+        "summary": "Set Messages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "chat"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Messages",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "get": {
+        "operationId": "chat_apis_chat_get_messages",
+        "summary": "Get Messages",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/message/{room_uuid}": {
+      "post": {
+        "operationId": "chat_apis_chat_set_user_message",
+        "summary": "Set User Message",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "room_uuid",
+            "schema": {
+              "title": "Room Uuid",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "chat"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Message"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DocumentFileSchema": {
+        "title": "DocumentFileSchema",
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "created_at",
+          "updated_at",
+          "url",
+          "name"
+        ]
+      },
+      "MessageType": {
+        "title": "MessageType",
+        "description": "An enumeration.",
+        "enum": [
+          "USER",
+          "SYSTEM",
+          "CONTEXT",
+          "LLM"
+        ],
+        "type": "string"
+      },
+      "Message": {
+        "title": "Message",
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/MessageType"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ]
+      }
+    }
+  },
+  "servers": null
+}

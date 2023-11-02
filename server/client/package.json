@@ -1,15 +1,23 @@
 {
   "name": "client",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "test": "jest",
+    "test-watch": "jest --watchAll",
+    "test:ci": "jest --collectCoverage --coverageDirectory=\"./coverage\" --ci --reporters=default --reporters=jest-junit --watchAll=false",
+    "format": "prettier --write 'src/**/*.{js,ts,tsx}'",
+    "preview": "vite preview",
+    "schema": "npx openapi-typescript http://localhost:8000/api/chat/openapi.json --output ./src/__generated__/chat/openapi.ts --name ChatClient"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.4.3",
+    "axios": "^1.6.0",
+    "openapi-fetch": "^0.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -23,9 +31,16 @@
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
+    "msw": "^2.0.2",
+    "openapi": "^1.0.1",
     "postcss": "^8.4.31",
+    "prettier": "^3.0.3",
+    "swagger-typescript-api": "^13.0.3",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
