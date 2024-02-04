@@ -1,6 +1,6 @@
-# django-llama2-reactjs-chat-pdf
+# django-llama2-chat-pdf
 
-A python LLM chat app using Django Async, ReactJS and LLAMA2, that allows you to chat with multiple pdf documents.
+A python LLM chat app using Django Async and LLAMA2, that allows you to chat with multiple pdf documents.
 Components are chosen so everything can be self-hosted.
 
 
