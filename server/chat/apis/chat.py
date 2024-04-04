@@ -273,6 +273,7 @@ async def get_messages(
     request,
     room_uuid: str,
 ) -> list[schemas.MessageSchema]:
+    # TODO: add restriction, based off request.auth.user
     conversation = await Conversation.objects.aget(uuid=room_uuid)
 
     messages = await sync_to_async(conversation.messages.all)()
