@@ -6,8 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Install necessary system packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev gcc libmagic1 && \
+RUN echo "deb http://deb.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev gcc libmagic1 sqlite3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
