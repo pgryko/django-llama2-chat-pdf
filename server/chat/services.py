@@ -79,7 +79,7 @@ async def get_replicate_stream(
         # The replicate/llama-2-70b-chat model can stream output as it's running.
         # The predict method returns an iterator, and you can iterate over that output.
         # Prompting guide https://replicate.com/blog/how-to-prompt-llama
-        output: Iterator = replicate.run(
+        output: Iterator = replicate.stream(
             "meta/llama-2-70b-chat",
             input={
                 "prompt": prompt,
@@ -95,7 +95,7 @@ async def get_replicate_stream(
             # next chunk of data. It's worth investigating further if there are other underlying issues,
             # such as buffering in your server or any intermediaries, that might affect real-time streaming.
             # print(item)
-            collected_output.append(item)
+            collected_output.append(str(item))
             await asyncio.sleep(0.000001)  # Introducing a delay
             yield item
 
