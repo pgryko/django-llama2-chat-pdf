@@ -48,7 +48,7 @@ def mock_replicate_run_exception(*args, **kwargs):
     def _mock_run_exception(*args, **kwargs):
         raise Exception("Some error")
 
-    with patch("replicate.run", _mock_run_exception):
+    with patch("replicate.stream", _mock_run_exception):
         yield  # This yields control to the test function, keeping the patch in effect
 
 
@@ -60,5 +60,5 @@ def mock_replicate_run():
         yield "item2"
 
     # Patch the replicate.run function to use our mock_run
-    with patch("replicate.run", mock_run):
+    with patch("replicate.stream", mock_run):
         yield  # This yields control to the test function, keeping the patch in effect
