@@ -1,5 +1,5 @@
 # Use the official Python 3.9 image as the base image
-FROM python:3.11
+FROM python:3.11-bookworm
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Install necessary system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev gcc libmagic1 && \
+    libpq-dev gcc libmagic1 sqlite3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
